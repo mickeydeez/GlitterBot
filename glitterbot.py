@@ -9,7 +9,7 @@ from time import sleep
 
 
 CONFIG_PATH = 'config.yml'
-DEFAULT_LOG_LEVEL = logging.DEBUG
+DEFAULT_LOG_LEVEL = logging.INFO
 
 
 def run():
@@ -35,8 +35,8 @@ class Tweeter(object):
             format='[%(levelname)s] (%(threadName)-10s) %(message)s'
         )
         self.api = self.auth()
-    
-    
+
+
     def reload_config(self):
         try:
             with open(CONFIG_PATH, 'r') as f:
@@ -44,7 +44,7 @@ class Tweeter(object):
         except:
             raise BadConfiguration
         if not isinstance(data['watched_hashtags'], list):
-            raise BadConfiguration   
+            raise BadConfiguration
         try:
             if os.path.isfile(data['tweets_path']):
                 self.tweets_path = data['tweets_path']
