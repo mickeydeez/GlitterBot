@@ -14,11 +14,12 @@ followers_limit: 200 # user has at least this many followers
 statuses_limit: 2000 # user has at least this many status updates
 retweeted_limit: False # will cause some extra searches if set, shit may not even ever work
                        # would have to be a number < 5
+                       # checks for how many times the tweet has already been retweeted
 
 
 # relative to time zone on machine running bot
 # 10:00 - 22:00
-minimum_hour: 10 
+minimum_hour: 10
 maximum_hour: 22
 
 # optional path to tweets to send out on intervals
@@ -37,7 +38,7 @@ blocked_hashtags:
 
 # user mentions to ignore if they get found in a returned tweet
 blocked_user_mentions:
-  - "@SomeDick" 
+  - "@SomeDick"
   - "@CyberDildo"
 
 log_level: "info"
