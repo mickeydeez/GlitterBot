@@ -97,7 +97,7 @@ class Tweeter(object):
                     # need moar white space!
                     for i in range(0,5):
                         logging.debug('----------------------------------')
-                    logging.debug(tweet)
+                    logging.info(tweet)
                     if tweet != '\n':
                         self.api.update_status(tweet)
                         self.update_tweets(tweet)
@@ -105,7 +105,7 @@ class Tweeter(object):
                     else:
                         pass
                 except tweepy.TweepError as e:
-                    logging.debug(e.reason)
+                    logging.info(e.reason)
                     sleep(300)
             else:
                 self.reload_config()
@@ -120,25 +120,25 @@ class Tweeter(object):
                     # need moar white space!
                     for i in range(0,5):
                         logging.debug('----------------------------------')
+                    logging.info('\nTweet by: @' + tweet.user.screen_name)
                     if self.is_worth_while_tweet(tweet):
-                        logging.debug('\nTweet by: @' + tweet.user.screen_name)
                         try:
                             tweet.favorite()
-                            logging.debug('Favorited the tweet')
+                            logging.info('Favorited the tweet')
                             sleep(3)
                         except tweepy.TweepError as e:
-                            logging.debug(e.reason)
+                            logging.info(e.reason)
                             sleep(2)
                         if not tweet.user.following:
                             tweet.user.follow()
-                            logging.debug('Followed the user')
+                            logging.info('Followed the user')
                             sleep(3)
                         try:
                             tweet.retweet()
-                            logging.debug('Retweeted the tweet')
+                            logging.info('Retweeted the tweet')
                             sleep(180)
                         except tweepy.TweepError as e:
-                            logging.debug(e.reason)
+                            logging.info(e.reason)
                             sleep(5)
                         self.reload_config()
                         sleep(5)
@@ -194,14 +194,14 @@ class Tweeter(object):
             return True
         now = datetime.now()
         if now.hour < self.min_hour or now.hour > self.max_hour:
-            logging.debug("We are sleeping right now...")
+            logging.info("We are sleeping right now...")
             return False
         else:
             return True
 
 
     def log_filtered(self, ftype):
-        logging.debug("Failed to meet %s Filter" % ftype)
+        logging.info("Failed to meet %s Filter" % ftype)
         return False
 
 
