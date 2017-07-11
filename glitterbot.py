@@ -88,6 +88,8 @@ class Tweeter(object):
             self.log_level == logging.WARN
         elif config.lower() == 'error':
             self.log_level == logging.ERROR
+        else:
+            self.log_level == DEFAULT_LOG_LEVEL
 
 
     def tweet(self):
