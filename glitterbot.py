@@ -131,9 +131,13 @@ class Tweeter(object):
                             logging.info(e.reason)
                             sleep(2)
                         if not tweet.user.following:
-                            tweet.user.follow()
-                            logging.info('Followed the user')
-                            sleep(3)
+                            try:
+                                tweet.user.follow()
+                                logging.info('Followed the user')
+                                sleep(3)
+                            except tweepy.TweepError as e:
+                                logging.info(e.reason)
+                                sleep(2)
                         try:
                             tweet.retweet()
                             logging.info('Retweeted the tweet')
