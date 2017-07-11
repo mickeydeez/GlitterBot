@@ -53,28 +53,59 @@ class Tweeter(object):
             else:
                 raise BadConfiguration
         except:
-            raise BadConfiguration
+            self.tweets_path = None
         try:
             self.min_hour = data['minimum_hour']
             self.max_hour = data['maximum_hour']
+        except KeyError:
+            self.mix_hour = 10
+            self.max_hour = 22
+        try:
+            self.set_logging(data['log_level'])
+        except KeyError:
+            self.log_level = DEFAULT_LOG_LEVEL
         except:
             raise BadConfiguration
         try:
-            self.set_logging(data['log_level'])
-        except:
-            self.log_level = DEFAULT_LOG_LEVEL
-        self.consumer_key = data['consumer_key']
-        self.consumer_secret = data['consumer_secret']
-        self.access_token = data['access_token']
-        self.access_token_secret = data['access_token_secret']
-        self.friends_limit = data['friends_limit']
-        self.favourites_limit = data['favourites_limit']
-        self.followers_limit = data['followers_limit']
-        self.statuses_limit = data['statuses_limit']
-        self.retweeted_limit = data['retweeted_limit']
-        self.watched_hashtags = data['watched_hashtags'] or []
-        self.blocked_hashtags = data['blocked_hashtags'] or []
-        self.blocked_user_mentions = data['blocked_user_mentions'] or []
+            self.consumer_key = data['consumer_key']
+            self.consumer_secret = data['consumer_secret']
+            self.access_token = data['access_token']
+            self.access_token_secret = data['access_token_secret']
+            self.watched_hashtags = data['watched_hashtags'] or []
+        except KeyError:
+            raise BadConfiguration
+        try:
+            self.friends_limit = data['friends_limit'] or 0
+        except KeyError:
+            self.friends_limit = 0
+        try:
+            self.favourites_limit = data['favourites_limit'] or 0
+        except KeyError:
+            self.favourites_limit = 0
+        try:
+            self.followers_limit = data['followers_limit'] or 0
+        except KeyError:
+            self.followers_limit = 0
+        try:
+            self.statuses_limit = data['statuses_limit'] or 0
+        except KeyError:
+            self.statuses_limit = 0
+        try:
+            self.retweeted_limit = data['retweeted_limit'] or 0
+        except KeyError:
+            self.retweeted_limit = 0
+        try:
+            self.blocked_hashtags = data['blocked_hashtags'] or []
+        except KeyError:
+            self.blocked_hashtags = []
+        try:
+            self.blocked_user_mentions = data['blocked_user_mentions'] or []
+        except KeyError:
+            self.blocked_user_mentions = []
+        try:
+            self.trigger_phrases = data['trigger_phrases'] or []
+        except KeyError:
+            self.trigger_phrases = []
 
 
     def set_logging(self, config):
@@ -194,6 +225,11 @@ class Tweeter(object):
             for item in tweet.entities['user_mentions']:
                 if item['screen_name'] == blocked.replace('@', ''):
                     return self.log_filtered('user_mention_filter')
+        for blocked in self.trigger_phrases:
+            if not isinstance(blocked, str):
+                continue
+            if blocked.lower() in tweet.text.lower():
+                return self.log_filtered('trigger_phrase_filter')
         return True
 
 

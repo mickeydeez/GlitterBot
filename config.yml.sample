@@ -1,4 +1,4 @@
-## Set features you don't want to False
+## Comment out features you don't want
 
 # These are required
 consumer_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -6,12 +6,11 @@ consumer_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 access_token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 access_token_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-
 # retweet filters
-friends_limit: 200 # user has at least this many friends
-favourites_limit: 2000 # user has at least this many favourites
-followers_limit: 200 # user has at least this many followers
-statuses_limit: 2000 # user has at least this many status updates
+friends_limit: 100 # user has at least this many friends
+favourites_limit: 1000 # user has at least this many favourites
+followers_limit: 100 # user has at least this many followers
+statuses_limit: 1000 # user has at least this many status updates
 retweeted_limit: False # will cause some extra searches if set, shit may not even ever work
                        # would have to be a number < 5
                        # checks for how many times the tweet has already been retweeted
@@ -24,6 +23,9 @@ maximum_hour: 22
 
 # optional path to tweets to send out on intervals
 tweets_path: 'tweets.txt'
+
+
+## THE BELOW CONFIGURATIONS ARE CASE INSENSITIVE :)
 
 # hashtags to search for and retweet
 watched_hashtags:
@@ -40,5 +42,9 @@ blocked_hashtags:
 blocked_user_mentions:
   - "@SomeDick"
   - "@CyberDildo"
+
+ # ignore tweets with these phrases that trigger you
+ trigger_phrases:
+   - "I slept with urnan last night"
 
 log_level: "info"
