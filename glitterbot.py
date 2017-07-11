@@ -121,6 +121,7 @@ class Tweeter(object):
                     for i in range(0,5):
                         logging.debug('----------------------------------')
                     logging.info('\nTweet by: @' + tweet.user.screen_name)
+                    logging.info(tweet.text)
                     if self.is_worth_while_tweet(tweet):
                         try:
                             tweet.favorite()
