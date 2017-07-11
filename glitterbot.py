@@ -20,7 +20,7 @@ def run():
     tweet_thread.start()
     retweet_thread.start()
     while threading.active_count() > 0:
-            time.sleep(0.1)
+        sleep(0.1)
 
 
 class BadConfiguration(Exception):
