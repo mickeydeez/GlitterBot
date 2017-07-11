@@ -4,16 +4,12 @@ import logging
 import random
 import yaml
 import os
-import argparse
 from datetime import datetime
 from time import sleep
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
-                    )
-
 
 CONFIG_PATH = 'config.yml'
+DEFAULT_LOG_LEVEL = logging.DEBUG
 
 
 def run():
@@ -31,10 +27,6 @@ def run():
         t.join()
 
 
-def parse_args():
-    pass
-
-
 class BadConfiguration(Exception):
     pass
 
@@ -43,6 +35,9 @@ class Tweeter(object):
 
     def __init__(self):
         self.reload_config()
+        logging.basicConfig(level=self.log_level,
+            format='[%(levelname)s] (%(threadName)-10s) %(message)s'
+        )
         self.api = self.auth()
     
     
@@ -66,6 +61,10 @@ class Tweeter(object):
             self.max_hour = data['maximum_hour']
         except:
             raise BadConfiguration
+        try:
+            self.set_logging(data['log_level'])
+        except:
+            self.log_level = DEFAULT_LOG_LEVEL
         self.consumer_key = data['consumer_key']
         self.consumer_secret = data['consumer_secret']
         self.access_token = data['access_token']
@@ -78,6 +77,17 @@ class Tweeter(object):
         self.watched_hashtags = data['watched_hashtags'] or []
         self.blocked_hashtags = data['blocked_hashtags'] or []
         self.blocked_user_mentions = data['blocked_user_mentions'] or []
+
+
+    def set_logging(self, config):
+        if config.lower() == 'debug':
+            self.log_level = logging.DEBUG
+        elif config.lower() == 'info':
+            self.log_level = logging.INFO
+        elif config.lower() == 'warn':
+            self.log_level == logging.WARN
+        elif config.lower() == 'error':
+            self.log_level == logging.ERROR
 
 
     def tweet(self):

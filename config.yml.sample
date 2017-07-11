@@ -40,3 +40,4 @@ blocked_user_mentions:
   - "@SomeDick" 
   - "@CyberDildo"
 
+log_level: "info"
