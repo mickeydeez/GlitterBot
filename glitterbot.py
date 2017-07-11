@@ -103,6 +103,7 @@ class Tweeter(object):
                     if tweet != '\n':
                         self.api.update_status(tweet)
                         self.update_tweets(tweet)
+                        self.reload_config()
                         sleep(1200)
                     else:
                         pass
@@ -152,7 +153,7 @@ class Tweeter(object):
                         break
                     else:
                         self.reload_config()
-                        sleep(1)
+                        sleep(2)
                         continue
             else:
                 self.reload_config()
