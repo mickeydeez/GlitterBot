@@ -19,12 +19,8 @@ def run():
     retweet_thread.setDaemon(True)
     tweet_thread.start()
     retweet_thread.start()
-    main_thread = threading.currentThread()
-    for t in threading.enumerate():
-        if t is main_thread:
-            continue
-        logging.debug('joining %s', t.getName())
-        t.join()
+    while threading.active_count() > 0:
+            time.sleep(0.1)
 
 
 class BadConfiguration(Exception):
