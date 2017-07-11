@@ -3,6 +3,7 @@
 ----------
 
 **Introduction**
+
 Glitterbot will read in it's configuration and begin to interact with twitter based off criteria therein.
 
 
