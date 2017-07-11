@@ -4,6 +4,7 @@
 
 **Usage**
 
+ - `pip install pyyaml tweepy # the rest should be built in`
  - Copy config.yml.sample to config.yml and edit fields to your needs
  - Run with `python glitterbot.py`
 
