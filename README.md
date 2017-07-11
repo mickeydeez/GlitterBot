@@ -1,6 +1,10 @@
-**Glitterbot**
+**Glitterbot - A Simple Idea Spreader**
 
 ----------
+
+**Introduction**
+Glitterbot will read in it's configuration and begin to interact with twitter based off criteria therein.
+
 
 **Usage**
 
