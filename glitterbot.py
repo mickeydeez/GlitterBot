@@ -33,10 +33,21 @@ class Tweeter(object):
 
     def __init__(self):
         self.reload_config()
+        self.tweets = self.load_tweets()
         logging.basicConfig(level=self.log_level,
             format='[%(levelname)s] (%(threadName)-10s) %(message)s'
         )
         self.api = self.auth()
+        self.config_thread = threading.Thread(
+            name='config_reloader', target=self.config_watcher
+        )
+        self.config_thread.setDaemon(True)
+        self.config_thread.start()
+        self.tweet_watch_thread = threading.Thread(
+            name='tweets_reloader', target=self.tweet_watcher
+        )
+        self.tweet_watch_thread.setDaemon(True)
+        self.tweet_watch_thread.start()
 
 
     def reload_config(self):
@@ -114,6 +125,14 @@ class Tweeter(object):
             self.tweet_sleep = int(data['tweet_sleep']) or 1200
         except KeyError:
             self.tweet_sleep = 1200
+        try:
+            self.config_reload_time = int(data['config_reload_time']) or 30
+        except KeyError:
+            self.config_reload_time = 30
+        try:
+            self.tweets_reload_time = int(data['tweets_reload_time']) or 30
+        except KeyError:
+            self.tweets_reload_time = 30
 
 
     def set_logging(self, config):
@@ -131,7 +150,6 @@ class Tweeter(object):
 
     def tweet(self):
         while True:
-            self.tweets = self.load_tweets()
             if self.is_operating_time():
                 tweet = random.choice(self.tweets)
                 try:
@@ -142,16 +160,12 @@ class Tweeter(object):
                     if tweet != '\n':
                         self.api.update_status(tweet)
                         self.update_tweets(tweet)
-                        self.reload_config()
                         sleep(self.tweet_sleep)
                     else:
                         pass
                 except tweepy.TweepError as e:
                     logging.info(e.reason)
                     sleep(300)
-            else:
-                self.reload_config()
-                sleep(60) # just to save cpu cycles
 
 
     def retweet(self):
@@ -168,8 +182,8 @@ class Tweeter(object):
                         try:
                             tweet.favorite()
                             logging.info('Favorited the tweet')
-                            sleep(3)
                         except tweepy.TweepError as e:
+                            sleep(3)
                             logging.info(e.reason)
                             sleep(3)
                         if not tweet.user.following:
@@ -187,16 +201,10 @@ class Tweeter(object):
                         except tweepy.TweepError as e:
                             logging.info(e.reason)
                             sleep(5)
-                        self.reload_config()
-                        sleep(5)
                         break
                     else:
-                        self.reload_config()
-                        sleep(2)
+
                         continue
-            else:
-                self.reload_config()
-                sleep(60)
 
 
     def is_worth_while_tweet(self, tweet):
@@ -275,6 +283,18 @@ class Tweeter(object):
                 return f.readlines()
         except:
             return []
+
+
+    def config_watcher(self):
+        while True:
+            self.reload_config()
+            sleep(self.config_reload_time)
+
+
+    def tweet_watcher(self):
+        while True:
+            self.tweets = self.load_tweets()
+            sleep(self.tweets_reload_time)
 
 
 

@@ -52,3 +52,6 @@ log_level: "info"
 # Sleep intervals
 retweet_sleep: 300
 tweet_sleep: 1200
+
+config_reload_time: 30
+tweets_reload_time: 30
