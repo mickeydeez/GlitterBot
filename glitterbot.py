@@ -75,23 +75,23 @@ class Tweeter(object):
         except KeyError:
             raise BadConfiguration
         try:
-            self.friends_limit = data['friends_limit'] or 0
+            self.friends_limit = int(data['friends_limit']) or 0
         except KeyError:
             self.friends_limit = 0
         try:
-            self.favourites_limit = data['favourites_limit'] or 0
+            self.favourites_limit = int(data['favourites_limit']) or 0
         except KeyError:
             self.favourites_limit = 0
         try:
-            self.followers_limit = data['followers_limit'] or 0
+            self.followers_limit = int(data['followers_limit']) or 0
         except KeyError:
             self.followers_limit = 0
         try:
-            self.statuses_limit = data['statuses_limit'] or 0
+            self.statuses_limit = int(data['statuses_limit']) or 0
         except KeyError:
             self.statuses_limit = 0
         try:
-            self.retweeted_limit = data['retweeted_limit'] or 0
+            self.retweeted_limit = int(data['retweeted_limit']) or 0
         except KeyError:
             self.retweeted_limit = 0
         try:
@@ -106,6 +106,14 @@ class Tweeter(object):
             self.trigger_phrases = data['trigger_phrases'] or []
         except KeyError:
             self.trigger_phrases = []
+        try:
+            self.retweet_sleep = int(data['retweet_sleep']) or 300
+        except KeyError:
+            self.retweet_sleep = 300
+        try:
+            self.tweet_sleep = int(data['tweet_sleep']) or 1200
+        except KeyError:
+            self.tweet_sleep = 1200
 
 
     def set_logging(self, config):
@@ -135,7 +143,7 @@ class Tweeter(object):
                         self.api.update_status(tweet)
                         self.update_tweets(tweet)
                         self.reload_config()
-                        sleep(1200)
+                        sleep(self.tweet_sleep)
                     else:
                         pass
                 except tweepy.TweepError as e:
@@ -163,7 +171,7 @@ class Tweeter(object):
                             sleep(3)
                         except tweepy.TweepError as e:
                             logging.info(e.reason)
-                            sleep(2)
+                            sleep(3)
                         if not tweet.user.following:
                             try:
                                 tweet.user.follow()
@@ -171,11 +179,11 @@ class Tweeter(object):
                                 sleep(3)
                             except tweepy.TweepError as e:
                                 logging.info(e.reason)
-                                sleep(2)
+                                sleep(3)
                         try:
                             tweet.retweet()
                             logging.info('Retweeted the tweet')
-                            sleep(180)
+                            sleep(self.retweet_sleep)
                         except tweepy.TweepError as e:
                             logging.info(e.reason)
                             sleep(5)

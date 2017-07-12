@@ -48,3 +48,7 @@ blocked_user_mentions:
    - "I slept with urnan last night"
 
 log_level: "info"
+
+# Sleep intervals
+retweet_sleep: 300
+tweet_sleep: 1200
