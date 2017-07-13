@@ -149,23 +149,29 @@ class Tweeter(object):
 
 
     def tweet(self):
-        while True:
-            if self.is_operating_time():
-                tweet = random.choice(self.tweets)
-                try:
-                    # need moar white space!
-                    for i in range(0,5):
-                        logging.debug('----------------------------------')
-                    logging.info(tweet)
-                    if tweet != '\n':
-                        self.api.update_status(tweet)
-                        self.update_tweets(tweet)
-                        sleep(self.tweet_sleep)
-                    else:
-                        pass
-                except tweepy.TweepError as e:
-                    logging.info(e.reason)
+        if self.tweets_path and len(self.tweets) > 0:
+            while True:
+                if self.is_operating_time():
+                    tweet = random.choice(self.tweets)
+                    try:
+                        # need moar white space!
+                        for i in range(0,5):
+                            logging.debug('----------------------------------')
+                        logging.info(tweet)
+                        if tweet != '\n':
+                            self.api.update_status(tweet)
+                            self.update_tweets(tweet)
+                            sleep(self.tweet_sleep)
+                        else:
+                            self.update_tweets(tweet)
+                    except tweepy.TweepError as e:
+                        logging.info(e.reason)
+                        sleep(300)
+                else:
+                    logging.info("No more tweets...")
                     sleep(300)
+        else:
+            return
 
 
     def retweet(self):
@@ -300,7 +306,12 @@ class Tweeter(object):
 
 def tweeter():
     twit = Tweeter()
-    twit.tweet()
+    while True:
+        try:
+            twit.tweet()
+        except:
+            logging.info("Tweeter is sleeping")
+            sleep(300)
 
 
 def retweeter():
