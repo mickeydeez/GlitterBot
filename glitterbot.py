@@ -211,6 +211,9 @@ class Tweeter(object):
                     else:
 
                         continue
+            else:
+                sleep(60)
+                continue
 
 
     def is_worth_while_tweet(self, tweet):
