@@ -1,10 +1,10 @@
 ## Comment out features you don't want
 
 # These are required
-consumer_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-consumer_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-access_token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-access_token_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+consumer_key: "qahZsNer1hup8ZhX8lLlqB1ub"
+consumer_secret: "WT5NvXiI5igOPzJ8dw3pDtyF0S0ppNNLtTrh6UoT5kRtXjIsKa"
+access_token: "885210636904529920-nlGSFhdUmv8GGUPQIGbyzTosOjCxdGa"
+access_token_secret: "S4ykNnt6HDSBc0qxFYJCDde1ThOTh3NguCHyAYxmiBz0Y"
 
 # retweet filters
 friends_limit: 100 # user has at least this many friends
@@ -29,9 +29,8 @@ tweets_path: 'tweets.txt'
 
 # hashtags to search for and retweet
 watched_hashtags:
-  - "#sometag"
-  - "#someothercooltag"
-  - "#cocks"
+  - "#NetNeutrality"
+  - "#LogOff"
 
 # hashtags to ignore if they get found in a returned tweet
 blocked_hashtags:
@@ -47,11 +46,11 @@ blocked_user_mentions:
 trigger_phrases:
   - "I slept with urnan last night"
 
-log_level: "info"
+log_level: "debug"
 
 # Sleep intervals
-retweet_sleep: 300
-tweet_sleep: 1200
+retweet_sleep: 600
+tweet_sleep: 1500
 
-config_reload_time: 30
-tweets_reload_time: 30
+config_reload_time: 60
+tweets_reload_time: 60
