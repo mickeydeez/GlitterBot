@@ -15,6 +15,7 @@ retweeted_limit: False # will cause some extra searches if set, shit may not eve
                        # would have to be a number < 5
                        # checks for how many times the tweet has already been retweeted
 
+# Whether or not to follow users after retweeting them
 follow_users: True
 
 # relative to time zone on machine running bot
