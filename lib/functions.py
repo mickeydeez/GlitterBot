@@ -32,6 +32,13 @@ def tweet_list(args):
         exit("No such file: %s" % args.tweet_list)
 
 
+def tweet(args):
+    twit = Tweeter(args.config_path)
+    stripped = args.tweet.strip()
+    print("[*] Tweeting: %s" % stripped)
+    twit.tweet(stripped)
+    
+
 def retweet(args):
     twit = Tweeter(args.config_path)
     twit.retweet(args.retweet_search)

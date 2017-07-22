@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from lib.functions import daemon_mode, tweet_list, retweet
+from lib.functions import daemon_mode, tweet_list, retweet, tweet
 from argparse import ArgumentParser
 from sys import argv, exit
 
@@ -15,6 +15,8 @@ def run():
         tweet_list(args)
     if args.retweet_search:
         retweet(args)
+    if args.tweet:
+        tweet(args)
     exit()
 
 
@@ -48,6 +50,13 @@ def parse_args():
         action='store',
         dest='tweet_list',
         help="A text file of tweets to send out."
+    )
+    parser.add_argument(
+        '-t',
+        '--tweet',
+        action='store',
+        dest='tweet',
+        help="A tweet to send out."
     )
     parser.add_argument(
         '-rT',
