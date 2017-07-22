@@ -365,7 +365,7 @@ class Tweeter(object):
 
 
     def config_watcher(self):
-        while self.running:
+        if self.running:
             self.reload_config()
             logging.info("Configuration reloaded")
             Timer(
@@ -375,7 +375,7 @@ class Tweeter(object):
 
 
     def tweet_watcher(self):
-        while self.running:
+        if self.running:
             self.tweets = self.load_tweets()
             logging.info("Tweets reloaded")
             Timer(
