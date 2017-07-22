@@ -1,5 +1,6 @@
 ## Comment out features you don't want
 
+# Go to apps.twitter.com to generate these
 # These are required
 consumer_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 consumer_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
