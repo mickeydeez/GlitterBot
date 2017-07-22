@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from lib.functions import daemon_mode, tweet_list
+from lib.functions import daemon_mode, tweet_list, retweet
 from argparse import ArgumentParser
 from sys import argv, exit
 
@@ -13,6 +13,9 @@ def run():
         exit()
     if args.tweet_list:
         tweet_list(args)
+    if args.retweet_search:
+        retweet(args)
+    exit()
 
 
 def parse_args():
@@ -45,6 +48,13 @@ def parse_args():
         action='store',
         dest='tweet_list',
         help="A text file of tweets to send out."
+    )
+    parser.add_argument(
+        '-rT',
+        '--retweet',
+        action='store',
+        dest='retweet_search',
+        help="Hashtag or user to retweet. Will be prompted before action."
     )
     if len(argv) == 1:
         parser.print_help()

@@ -3,8 +3,8 @@
 from lib.client import Tweeter
 from time import sleep
 from sys import exit
-import threading
-import os
+from threading import active_count
+from os import path
 
 
 def daemon_mode(config_path):
@@ -12,12 +12,12 @@ def daemon_mode(config_path):
     twit.spawn_watchers()
     twit.spawn_tweet_thread()
     twit.spawn_retweet_thread()
-    while threading.active_count() > 0:
+    while active_count() > 0:
         sleep(1)
 
 
 def tweet_list(args):
-    if os.path.isfile(args.tweet_list):
+    if path.isfile(args.tweet_list):
         with open(args.tweet_list, 'r') as f:
             tweets = f.readlines()
         twit = Tweeter(args.config_path)
@@ -30,3 +30,8 @@ def tweet_list(args):
 
     else:
         exit("No such file: %s" % args.tweet_list)
+
+
+def retweet(args):
+    twit = Tweeter(args.config_path)
+    twit.retweet(args.retweet_search)

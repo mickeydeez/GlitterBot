@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import tweepy
-import threading
-import logging
-import random
-import yaml
-import os
-import sys
+from lib.exceptions import BadConfiguration, InvalidParameter
 from datetime import datetime
 from time import sleep
-from lib.exceptions import BadConfiguration, InvalidParameter
+from threading import Thread, Timer
+from random import choice
+from yaml import load
+from os import path
+
+import tweepy
+import logging
 
 
 DEFAULT_LOG_LEVEL = logging.INFO
@@ -28,18 +28,18 @@ class Tweeter(object):
 
 
     def spawn_watchers(self):
-        threading.Timer(
+        Timer(
             self.config_reload_time,
             self.config_watcher
         ).start()
-        threading.Timer(
+        Timer(
             self.tweets_reload_time,
             self.tweet_watcher
         ).start()
 
 
     def spawn_tweet_thread(self):
-        tweet_thread = threading.Thread(
+        tweet_thread = Thread(
             name = 'tweeter',
             target = self.async_tweet
         )
@@ -48,7 +48,7 @@ class Tweeter(object):
     
     
     def spawn_retweet_thread(self):
-        retweet_thread = threading.Thread(
+        retweet_thread = Thread(
             name = 'retweeter',
             target = self.async_retweet
         )
@@ -58,11 +58,11 @@ class Tweeter(object):
 
     def reload_config(self):
         with open(self.config_path, 'r') as f:
-            data = yaml.load(f.read())
+            data = load(f.read())
         if not isinstance(data['watched_hashtags'], list):
             raise BadConfiguration
         try:
-            if os.path.isfile(data['tweets_path']):
+            if path.isfile(data['tweets_path']):
                 self.tweets_path = data['tweets_path']
             else:
                 raise BadConfiguration
@@ -165,12 +165,39 @@ class Tweeter(object):
             raise InvalidParameter
 
 
+    def retweet(self, search):
+        done = False
+        while not done:
+                for tweet in tweepy.Cursor(self.api.search, q=search).items():
+                    logging.info("Tweet by: @" + tweet.user.screen_name)
+                    self.is_worth_while_tweet(tweet) # to get data
+                    logging.info(tweet.text)
+                    answer = raw_input("[*] Retweet this tweet? [Y/n]: ")
+                    if not answer or answer == "Y" or answer == "y":
+                        try:
+                            tweet.favorite()
+                            logging.info("Favorited the tweet")
+                            if self.follow_users:
+                                if not tweet.user.following:
+                                    tweet.user.follow()
+                                    logging.info("Followed the user")
+                            tweet.retweet()
+                            logging.info('Retweeted the tweet')
+                            done = True
+                            break
+                        except tweepy.TweepError as e:
+                            logging.info(e.reason)
+                            continue
+                    else:
+                        continue
+
+
     def async_tweet(self):
         if self.tweets_path:
             while True:
                 if self.is_operating_time():
                     try:
-                        tweet = random.choice(self.tweets)
+                        tweet = choice(self.tweets)
                     except:
                         tweet = None
                     if tweet:
@@ -199,7 +226,7 @@ class Tweeter(object):
         while True:
             try:
                 if self.is_operating_time():
-                    tag = random.choice(self.watched_hashtags)
+                    tag = choice(self.watched_hashtags)
                     for tweet in tweepy.Cursor(self.api.search, q=tag).items():
                         # need moar white space!
                         for i in range(0,5):
@@ -244,12 +271,12 @@ class Tweeter(object):
 
 
     def is_worth_while_tweet(self, tweet):
-        logging.debug("Retweeted: %s" % tweet.retweeted)
-        logging.debug("Friends: %s" % str(tweet.author.friends_count))
-        logging.debug("Favourites: %s" % str(tweet.author.favourites_count))
-        logging.debug("Followers: %s" % str(tweet.author.followers_count))
-        logging.debug("Statuses : %s" % str(tweet.author.statuses_count))
-        logging.debug("Reweets: %s" % str(tweet.retweet_count))
+        logging.info("Retweeted: %s" % tweet.retweeted)
+        logging.info("Friends: %s" % str(tweet.author.friends_count))
+        logging.info("Favourites: %s" % str(tweet.author.favourites_count))
+        logging.info("Followers: %s" % str(tweet.author.followers_count))
+        logging.info("Statuses : %s" % str(tweet.author.statuses_count))
+        logging.info("Reweets: %s" % str(tweet.retweet_count))
         if self.friends_limit:
             if int(tweet.user.friends_count) < int(self.friends_limit):
                 return self.log_filtered('friends_limit')
@@ -324,7 +351,7 @@ class Tweeter(object):
     def config_watcher(self):
         self.reload_config()
         logging.info("Configuration reloaded")
-        threading.Timer(
+        Timer(
             self.config_reload_time,
             self.config_watcher
         ).start()
@@ -333,7 +360,7 @@ class Tweeter(object):
     def tweet_watcher(self):
         self.tweets = self.load_tweets()
         logging.info("Tweets reloaded")
-        threading.Timer(
+        Timer(
             self.tweets_reload_time,
             self.tweet_watcher
         ).start()
