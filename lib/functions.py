@@ -13,7 +13,7 @@ def daemon_mode(config_path):
     twit.spawn_tweet_thread()
     twit.spawn_retweet_thread()
     while active_count() > 0:
-        sleep(1)
+        sleep(0.1)
 
 
 def tweet_list(args):
