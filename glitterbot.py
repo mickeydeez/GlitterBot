@@ -2,6 +2,7 @@
 
 from lib.functions import daemon_mode, tweet_list, retweet, tweet
 from lib.parser import parse_args, sanitize_args
+from sys import exit
 
 
 def run():

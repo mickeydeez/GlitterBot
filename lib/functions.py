@@ -5,6 +5,7 @@ from time import sleep
 from sys import exit
 from threading import active_count
 from os import path
+from signal import SIGTERM, signal
 
 
 def daemon_mode(config_path):
@@ -12,8 +13,13 @@ def daemon_mode(config_path):
     twit.spawn_watchers()
     twit.spawn_tweet_thread()
     twit.spawn_retweet_thread()
-    while active_count() > 0:
-        sleep(0.1)
+    try:
+        while active_count() > 0:
+            sleep(0.1)
+    except KeyboardInterrupt:
+        print("[*] Stopping threads. This may take a while depending on sleep times.")
+        twit.stop_threads()
+        exit()
 
 
 def tweet_list(args):

@@ -25,6 +25,7 @@ class Tweeter(object):
             format='[%(levelname)s] (%(threadName)-10s) %(message)s'
         )
         self.api = self.auth()
+        self.running = True
 
 
     def spawn_watchers(self):
@@ -172,62 +173,63 @@ class Tweeter(object):
     def retweet(self, search):
         done = False
         while not done:
-                for tweet in tweepy.Cursor(self.api.search, q=search).items():
-                    logging.info("Tweet by: @" + tweet.user.screen_name)
-                    self.is_worth_while_tweet(tweet) # to get data
-                    logging.info(tweet.text)
-                    answer = raw_input("[*] Retweet this tweet? [Y/n]: ")
-                    if not answer or answer == "Y" or answer == "y":
-                        try:
-                            tweet.favorite()
-                            logging.info("Favorited the tweet")
-                            if self.follow_users:
-                                if not tweet.user.following:
-                                    tweet.user.follow()
-                                    logging.info("Followed the user")
-                            tweet.retweet()
-                            logging.info('Retweeted the tweet')
-                            done = True
-                            break
-                        except tweepy.TweepError as e:
-                            logging.info(e.reason)
-                            continue
-                    else:
+            for tweet in tweepy.Cursor(self.api.search, q=search).items():
+                logging.info("Tweet by: @" + tweet.user.screen_name)
+                self.is_worth_while_tweet(tweet) # to get data
+                logging.info(tweet.text)
+                answer = raw_input("[*] Retweet this tweet? [Y/n]: ")
+                if not answer or answer == "Y" or answer == "y":
+                    try:
+                        tweet.favorite()
+                        logging.info("Favorited the tweet")
+                        if self.follow_users:
+                            if not tweet.user.following:
+                                tweet.user.follow()
+                                logging.info("Followed the user")
+                        tweet.retweet()
+                        logging.info('Retweeted the tweet')
+                        done = True
+                        break
+                    except tweepy.TweepError as e:
+                        logging.info(e.reason)
                         continue
+                else:
+                    continue
 
 
     def async_tweet(self):
-        if self.tweets_path:
-            while True:
-                if self.is_operating_time():
+        while True:
+            if not self.running:
+                break
+            if self.is_operating_time():
+                try:
+                    tweet = choice(self.tweets)
+                except:
+                    tweet = None
+                if tweet:
                     try:
-                        tweet = choice(self.tweets)
-                    except:
-                        tweet = None
-                    if tweet:
-                        try:
-                            # need moar white space!
-                            for i in range(0,5):
-                                logging.debug('----------------------------------')
-                            logging.info(tweet)
-                            if tweet != '\n':
-                                self.api.update_status(tweet)
-                                self.update_tweets(tweet)
-                                sleep(self.tweet_sleep)
-                            else:
-                                self.update_tweets(tweet)
-                        except tweepy.TweepError as e:
-                            logging.info(e.reason)
-                            sleep(300)
-                    else:
-                        logging.info("No more tweets...")
+                        # need moar white space!
+                        for i in range(0,5):
+                            logging.debug('----------------------------------')
+                        logging.info(tweet)
+                        if tweet != '\n':
+                            self.api.update_status(tweet)
+                            self.update_tweets(tweet)
+                            sleep(self.tweet_sleep)
+                        else:
+                            self.update_tweets(tweet)
+                    except tweepy.TweepError as e:
+                        logging.info(e.reason)
                         sleep(300)
-        else:
-            return
+                else:
+                    logging.info("No more tweets...")
+                    sleep(300)
 
 
     def async_retweet(self):
         while True:
+            if not self.running:
+                break
             try:
                 if self.is_operating_time():
                     tag = choice(self.watched_hashtags)
@@ -358,19 +360,25 @@ class Tweeter(object):
             return []
 
 
+    def stop_threads(self):
+        self.running = False
+
+
     def config_watcher(self):
-        self.reload_config()
-        logging.info("Configuration reloaded")
-        Timer(
-            self.config_reload_time,
-            self.config_watcher
-        ).start()
+        while self.running:
+            self.reload_config()
+            logging.info("Configuration reloaded")
+            Timer(
+                self.config_reload_time,
+                self.config_watcher
+            ).start()
 
 
     def tweet_watcher(self):
-        self.tweets = self.load_tweets()
-        logging.info("Tweets reloaded")
-        Timer(
-            self.tweets_reload_time,
-            self.tweet_watcher
-        ).start()
+        while self.running:
+            self.tweets = self.load_tweets()
+            logging.info("Tweets reloaded")
+            Timer(
+                self.tweets_reload_time,
+                self.tweet_watcher
+            ).start()
