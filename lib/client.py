@@ -113,6 +113,10 @@ class Tweeter(object):
         except KeyError:
             self.follow_users = False
         try:
+            self.blocked_users = data['blocked_users'] or []
+        except KeyError:
+            self.blocked_users = []
+        try:
             self.blocked_hashtags = data['blocked_hashtags'] or []
         except KeyError:
             self.blocked_hashtags = []
@@ -277,6 +281,12 @@ class Tweeter(object):
         logging.info("Followers: %s" % str(tweet.author.followers_count))
         logging.info("Statuses : %s" % str(tweet.author.statuses_count))
         logging.info("Reweets: %s" % str(tweet.retweet_count))
+        for blocked in self.blocked_users:
+            if not isinstance(blocked, str):
+                continue
+            if blocked.lower().replace('@', '') == \
+                    tweet.user.screen_name.lower().replace('@', ''):
+                return self.log_filtered('blocked_user_filter')
         if self.friends_limit:
             if int(tweet.user.friends_count) < int(self.friends_limit):
                 return self.log_filtered('friends_limit')

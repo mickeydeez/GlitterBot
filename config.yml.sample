@@ -46,6 +46,10 @@ blocked_user_mentions:
   - "@SomeDick"
   - "@CyberDildo"
 
+# users to ignore
+blocked_users:
+  - "@SomeFag"
+
  # ignore tweets with these phrases that trigger you
 trigger_phrases:
   - "I slept with urnan last night"
