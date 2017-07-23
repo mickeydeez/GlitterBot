@@ -5,7 +5,6 @@ from time import sleep
 from sys import exit
 from threading import active_count
 from os import path
-from signal import SIGTERM, signal
 
 
 def daemon_mode(config_path):

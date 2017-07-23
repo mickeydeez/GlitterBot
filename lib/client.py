@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from lib.exceptions import BadConfiguration, InvalidParameter
+from signal import signal, SIGUSR1, SIGUSR2
 from datetime import datetime
 from time import sleep
 from threading import Thread, Timer
@@ -26,6 +27,18 @@ class Tweeter(object):
         )
         self.api = self.auth()
         self.running = True
+        signal(SIGUSR1, self.dump_stats)
+
+
+    def dump_stats(self, signum, frame):
+        print("[*] Caught User Signal. Getting stats...")
+        data = self.api.me()
+        print("[*] Username: @%s" % data.screen_name)
+        print("{*} Name: %s" % data.name)
+        print("[*] Favourites: %s" % str(data.favourites_count))
+        print("[*] Followers: %s" % str(data.followers_count))
+        print("[*] Friends: %s" % str(data.friends_count))
+        print("[*] Listed: %s" % str(data.listed_count))
 
 
     def spawn_watchers(self):
