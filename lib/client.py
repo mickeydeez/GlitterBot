@@ -29,7 +29,7 @@ class Tweeter(object):
             )
         self.api = self.auth()
         self.running = True
-        signal(SIGUSR1, self.dump_stats)
+        signal(SIGUSR1, self.catch_signal)
 
 
     def catch_signal(self, signum, frame):
