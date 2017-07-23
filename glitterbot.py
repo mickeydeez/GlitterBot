@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from lib.functions import daemon_mode, tweet_list, retweet, tweet
+from lib.functions import daemon_mode, tweet_list, retweet, tweet, \
+    get_my_stats, user_lookup
 from lib.parser import parse_args, sanitize_args
 from sys import exit
 
@@ -17,6 +18,10 @@ def run():
         retweet(args)
     if args.tweet:
         tweet(args)
+    if args.my_stats:
+        get_my_stats(args)
+    if args.user_lookup:
+        user_lookup(args)
     exit()
 
 

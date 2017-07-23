@@ -49,6 +49,21 @@ def parse_args():
         dest='retweet_search',
         help="Hashtag or user to retweet. Will be prompted before action."
     )
+    parser.add_argument(
+        '-g',
+        '--get-stats',
+        action='store_const',
+        const=True,
+        dest='my_stats',
+        help="Retrieve statistics for your account"
+    )
+    parser.add_argument(
+        '-l',
+        '--lookup',
+        action='store',
+        dest='user_lookup',
+        help="Retrieve information about a specific user"
+    )
     if len(argv) == 1:
         parser.print_help()
         exit(1)

@@ -25,7 +25,7 @@ def tweet_list(args):
     if path.isfile(args.tweet_list):
         with open(args.tweet_list, 'r') as f:
             tweets = f.readlines()
-        twit = Tweeter(args.config_path)
+        twit = Tweeter(args.config_path, log=False)
         for tweet in tweets:
             stripped = tweet.strip()
             print("[*] Tweeting: %s" % stripped)
@@ -38,12 +38,23 @@ def tweet_list(args):
 
 
 def tweet(args):
-    twit = Tweeter(args.config_path)
+    twit = Tweeter(args.config_path, log=False)
     stripped = args.tweet.strip()
     print("[*] Tweeting: %s" % stripped)
     twit.tweet(stripped)
     
 
 def retweet(args):
-    twit = Tweeter(args.config_path)
+    twit = Tweeter(args.config_path, log=False)
     twit.retweet(args.retweet_search)
+
+
+def get_my_stats(args):
+    twit = Tweeter(args.config_path, log=False)
+    twit.dump_stats()
+
+
+def user_lookup(args):
+    twit = Tweeter(args.config_path, log=False)
+    twit.dump_stats(user=args.user_lookup)
+    twit.extended_stats(user=args.user_lookup)

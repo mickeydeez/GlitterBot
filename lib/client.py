@@ -18,27 +18,63 @@ DEFAULT_LOG_LEVEL = logging.INFO
 
 class Tweeter(object):
 
-    def __init__(self, config_path):
+    def __init__(self, config_path, log=True):
         self.config_path = config_path
         self.reload_config()
         self.tweets = self.load_tweets()
-        logging.basicConfig(level=self.log_level,
-            format='[%(levelname)s] (%(threadName)-10s) %(message)s'
-        )
+        if log:
+            logging.basicConfig(level=self.log_level,
+                format='[%(levelname)s] (%(threadName)-10s) %(message)s'
+            )
         self.api = self.auth()
         self.running = True
         signal(SIGUSR1, self.dump_stats)
 
 
-    def dump_stats(self, signum, frame):
-        print("[*] Caught User Signal. Getting stats...")
-        data = self.api.me()
+    def catch_signal(self, signum, frame):
+        print("[*] Caught signal. Dumping stats...")
+        self.dump_stats()
+
+
+    def dump_stats(self, user=None):
+        if not user:
+            data = self.api.me()
+        else:
+            if isinstance(user, str):
+                data = self.api.get_user('%s' % str(user.replace('@', '')))
+            else:
+                raise InvalidParameter
         print("[*] Username: @%s" % data.screen_name)
-        print("{*} Name: %s" % data.name)
+        print("[*] Name: %s" % data.name)
         print("[*] Favourites: %s" % str(data.favourites_count))
         print("[*] Followers: %s" % str(data.followers_count))
         print("[*] Friends: %s" % str(data.friends_count))
         print("[*] Listed: %s" % str(data.listed_count))
+
+
+    def extended_stats(self, user=None):
+        if not user:
+            data = self.api.me()
+        else:
+            if isinstance(user, str):
+                data = self.api.get_user('%s' % str(user.replace('@', '')))
+            else:
+                raise InvalidParameter
+        print("[*] Created: %s" % data.created_at)
+        print("[*] Description: %s" % data.description)
+        print("[*] Last update: %s" % data.status.created_at)
+        hashtags = ' '.join(
+            [ "#%s" % x['text'] for x in \
+             data.status.entities['hashtags']]
+        )
+        mentions = ' '.join(
+            [ "@%s" % x['screen_name'] for x in \
+                data.status.entities['user_mentions']]
+        )
+        print("[*] \tUser Mentions: %s" % mentions)
+        print("[*] \tHashtags: %s" % hashtags)
+        print("[*] \tRetweet Text: %s" % data.status.text)
+        print('[*] \tRetweet Count: %s' % str(data.status.retweet_count))
 
 
     def spawn_watchers(self):
