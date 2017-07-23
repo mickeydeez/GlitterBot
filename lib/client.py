@@ -73,7 +73,10 @@ class Tweeter(object):
         )
         print("[*] \tUser Mentions: %s" % mentions)
         print("[*] \tHashtags: %s" % hashtags)
-        print("[*] \tRetweet Text: %s" % data.status.text)
+        if "RT @" in data.status.text:
+            print("[*] \tRetweet Text: %s" % data.status.text)
+        else:
+            print("[*] \tTweet Text: %s" % data.status.text)
         print('[*] \tRetweet Count: %s' % str(data.status.retweet_count))
 
 
