@@ -48,7 +48,7 @@ class Tweeter(object):
         print("[*] Name: %s" % data.name)
         print("[*] Favourites: %s" % str(data.favourites_count))
         print("[*] Followers: %s" % str(data.followers_count))
-        print("[*] Friends: %s" % str(data.friends_count))
+        print("[*] Following: %s" % str(data.friends_count))
         print("[*] Listed: %s" % str(data.listed_count))
 
 
@@ -330,7 +330,7 @@ class Tweeter(object):
 
     def is_worth_while_tweet(self, tweet):
         logging.info("Retweeted: %s" % tweet.retweeted)
-        logging.info("Friends: %s" % str(tweet.author.friends_count))
+        logging.info("Following: %s" % str(tweet.author.friends_count))
         logging.info("Favourites: %s" % str(tweet.author.favourites_count))
         logging.info("Followers: %s" % str(tweet.author.followers_count))
         logging.info("Statuses : %s" % str(tweet.author.statuses_count))
