@@ -9,7 +9,7 @@ Glitterbot will read in it's configuration and begin to interact with twitter ba
 
 **Usage**
 
- - `pip install pyyaml tweepy # the rest should be built in`
+ - `pip install pyyaml tweepy six # the rest should be built in`
  - Copy config.yml.sample to config.yml and edit fields to your needs
  - To see available arguments run `python glitterboy.py`
  - In daemon mode you can trigger a dump of your user stats by sending the process a SIGUSR1
