@@ -8,6 +8,7 @@ from threading import Thread, Timer
 from random import choice
 from yaml import load
 from os import path
+from six.moves.html_parser import HTMLParser
 
 import tweepy
 import logging
@@ -73,10 +74,19 @@ class Tweeter(object):
         )
         print("[*] \tUser Mentions: %s" % mentions)
         print("[*] \tHashtags: %s" % hashtags)
+        html = HTMLParser()
         if "RT @" in data.status.text:
-            print("[*] \tRetweet Text: %s" % data.status.text)
+            print(
+                "[*] \tRetweet Text: %s" % html.unescape(
+                    data.status.text.replace('\n', '\n\t\t    ')
+                )
+            )
         else:
-            print("[*] \tTweet Text: %s" % data.status.text)
+            print(
+                "[*] \tTweet Text: %s" % html.unescape(
+                    data.status.text.replace('\n', '\n\t\t    ')
+                )
+            )
         print('[*] \tRetweet Count: %s' % str(data.status.retweet_count))
 
 
