@@ -152,9 +152,9 @@ class Tweeter(object):
         except KeyError:
             raise BadConfiguration
         try:
-            self.friends_limit = int(data['friends_limit']) or 0
+            self.following_limit = int(data['following_limit']) or 0
         except KeyError:
-            self.friends_limit = 0
+            self.following_limit = 0
         try:
             self.favourites_limit = int(data['favourites_limit']) or 0
         except KeyError:
@@ -286,6 +286,8 @@ class Tweeter(object):
                 else:
                     logging.info("No more tweets...")
                     sleep(300)
+            else:
+                sleep(60)
 
 
     def async_retweet(self):
@@ -351,9 +353,9 @@ class Tweeter(object):
             if blocked.lower().replace('@', '') == \
                     tweet.user.screen_name.lower().replace('@', ''):
                 return self.log_filtered('blocked_user_filter')
-        if self.friends_limit:
-            if int(tweet.user.friends_count) < int(self.friends_limit):
-                return self.log_filtered('friends_limit')
+        if self.following_limit:
+            if int(tweet.user.friends_count) < int(self.following_limit):
+                return self.log_filtered('following_limit')
         if self.favourites_limit:
             if int(tweet.author.favourites_count) < int(self.favourites_limit):
                 return self.log_filtered('favourites_limit')

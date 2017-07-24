@@ -8,7 +8,7 @@ access_token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 access_token_secret: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 # retweet filters
-friends_limit: 100 # user has at least this many friends
+following_limit: 100 # user is following this many people
 favourites_limit: 1000 # user has at least this many favourites
 followers_limit: 100 # user has at least this many followers
 statuses_limit: 1000 # user has at least this many status updates
