@@ -12,7 +12,7 @@ following_limit: 100 # user is following this many people
 favourites_limit: 1000 # user has at least this many favourites
 followers_limit: 100 # user has at least this many followers
 statuses_limit: 1000 # user has at least this many status updates
-retweeted_limit: False # will cause some extra searches if set, shit may not even ever work
+retweeted_limit: 0 # will cause some extra searches if set, shit may not even ever work
                        # would have to be a number < 5
                        # checks for how many times the tweet has already been retweeted
 
@@ -57,8 +57,8 @@ trigger_phrases:
 log_level: "info"
 
 # Sleep intervals
-retweet_sleep: 300
-tweet_sleep: 1200
+retweet_sleep: 500
+tweet_sleep: 1500
 
-config_reload_time: 30
-tweets_reload_time: 30
+config_reload_time: 60
+tweets_reload_time: 60
