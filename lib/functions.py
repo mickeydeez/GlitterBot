@@ -47,7 +47,7 @@ def tweet(args):
 
 def retweet(args):
     twit = Client(args.config_path, log=True)
-    twit.retweet(args.retweet_search)
+    twit.retweet_loop(args.retweet_search)
 
 
 def get_my_stats(args):

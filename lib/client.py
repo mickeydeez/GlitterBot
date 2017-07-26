@@ -113,14 +113,12 @@ class Client(object):
         while not done:
             for tweet in self.search(query):
                 logging.info("Tweet by: @" + tweet.user.screen_name)
-                self.is_worth_while_tweet(tweet) # to get data
+                self.dump_tweet_stats(tweet) # to get data
                 logging.info(tweet.text)
                 answer = raw_input("[*] Retweet this tweet? [Y/n]: ")
                 if not answer or answer == "Y" or answer == "y":
                     try:
                         self.favourite(tweet)
-                        if self.follow_users:
-                            self.follow(tweet.user)
                         self.retweet(tweet)
                         done = True
                         break
