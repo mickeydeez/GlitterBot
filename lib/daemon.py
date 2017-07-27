@@ -23,6 +23,10 @@ class Daemon(object):
         self.tweets = self.load_tweets()
         self.running = True
         self.start_time = datetime.now()
+        self.total_retweets = 0
+        self.total_tweets = 0
+        self.total_follows = 0
+        self.total_favourites = 0
         signal(SIGUSR1, self.catch_signal)
         if log:
             logging.basicConfig(level=self.client.log_level,
@@ -147,6 +151,7 @@ class Daemon(object):
                         logging.info(tweet)
                         if tweet != '\n':
                             self.client.tweet(tweet)
+                            self.total_tweets += 1
                             self.update_tweets(tweet)
                             sleep(self.tweet_sleep)
                         else:
@@ -177,6 +182,7 @@ class Daemon(object):
                         if self.is_worth_while_tweet(tweet):
                             try:
                                 self.client.favourite(tweet)
+                                self.total_favourites += 1
                             except tweepy.TweepError as e:
                                 sleep(3)
                                 logging.info(e.reason)
@@ -185,6 +191,7 @@ class Daemon(object):
                                 if not tweet.user.following:
                                     try:
                                         self.client.follow(tweet.user)
+                                        self.total_follows += 1
                                         sleep(3)
                                     except tweepy.TweepError as e:
                                         logging.info(e.reason)
@@ -193,6 +200,7 @@ class Daemon(object):
                                     logging.info("Already following the user")
                             try:
                                 self.client.retweet(tweet)
+                                self.total_retweets += 1
                                 sleep(self.retweet_sleep)
                             except tweepy.TweepError as e:
                                 logging.info(e.reason)
@@ -211,6 +219,8 @@ class Daemon(object):
 
     def is_worth_while_tweet(self, tweet):
         self.client.dump_tweet_stats(tweet)
+        if tweet.user.screen_name == self.client.name:
+            return self.log_filtered("It's you!")
         for key, value in self.filters.iteritems():
             if isinstance(value['value'], int):
                 cmd = "tweet.%s < int(%s) or False" % (
@@ -233,6 +243,13 @@ class Daemon(object):
             else:
                 pass
         return True
+
+
+    def get_run_metrics(self):
+        logging.info("[*] Total Tweets: %s" % self.total_tweets)
+        logging.info("[*] Total Retweets: %s" % self.total_retweets)
+        logging.info("[*] Total Follows: %s" % self.total_follows)
+        logging.info("[*] Total Favourtes: %s" % self.total_favourites)
     
     
     def get_uptime(self):
@@ -303,6 +320,7 @@ class Daemon(object):
     def catch_signal(self, signum, frame):
         logging.info("[*] Caught signal. Dumping stats...")
         self.get_uptime()
+        self.get_run_metrics()
         self.client.dump_stats()
 
 

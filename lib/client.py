@@ -21,6 +21,7 @@ class Client(object):
                 format='[%(levelname)s] (%(threadName)-10s) %(message)s'
             )
         self.api = self.auth()
+        self.name = self.api.me().screen_name
         self.running = True
 
 
@@ -145,7 +146,7 @@ class Client(object):
     def follow(self, user):
         if not user.following:
             user.follow()
-            logging.info("Followed %s" % user.screen_name)
+            logging.info("Followed @%s" % user.screen_name)
     
     
     def tweet(self, tweet):
