@@ -22,6 +22,7 @@ class Daemon(object):
         self.reload_config()
         self.tweets = self.load_tweets()
         self.running = True
+        self.start_time = datetime.now()
         signal(SIGUSR1, self.catch_signal)
         if log:
             logging.basicConfig(level=self.client.log_level,
@@ -55,7 +56,7 @@ class Daemon(object):
             target = self.async_retweet
         )
         retweet_thread.setDaemon(True)
-	retweet_thread.start()
+        retweet_thread.start()
 
 
     def reload_config(self):
@@ -188,6 +189,8 @@ class Daemon(object):
                                     except tweepy.TweepError as e:
                                         logging.info(e.reason)
                                         sleep(3)
+                                else:
+                                    logging.info("Already following the user")
                             try:
                                 self.client.retweet(tweet)
                                 sleep(self.retweet_sleep)
@@ -230,6 +233,37 @@ class Daemon(object):
             else:
                 pass
         return True
+    
+    
+    def get_uptime(self):
+        now = datetime.now()
+        uptime = now - self.start_time
+        seconds = uptime.total_seconds()
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        if seconds == 0 or seconds > 1:
+            second_string = 'seconds'
+        else:
+            second_string = 'second'
+        if minutes == 0 or minutes > 1:
+            minute_string = 'minutes'
+        else:
+            minute_string = 'minute'
+        if hours == 0 or hours > 1:
+            hour_string = 'hours'
+        else:
+            hour_string = 'hour'
+        logging.info(
+            '[*] Uptime: %s %s, %s %s, %s %s' % (
+                int(hours),
+                hour_string,
+                int(minutes),
+                minute_string,
+                int(seconds),
+                second_string
+            )
+        )
 
 
     def is_operating_time(self):
@@ -268,6 +302,7 @@ class Daemon(object):
 
     def catch_signal(self, signum, frame):
         logging.info("[*] Caught signal. Dumping stats...")
+        self.get_uptime()
         self.client.dump_stats()
 
 

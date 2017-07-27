@@ -64,6 +64,13 @@ def parse_args():
         dest='user_lookup',
         help="Retrieve information about a specific user"
     )
+    parser.add_argument(
+        '-e',
+        '--enumerate',
+        action='store',
+        dest='enum_search',
+        help="Esnumerate a user's history"
+    )
     if len(argv) == 1:
         parser.print_help()
         exit(1)

@@ -2,6 +2,7 @@
 
 from lib.client import Client
 from lib.daemon import Daemon
+from lib.crawler import Crawler
 from time import sleep
 from sys import exit
 from threading import active_count
@@ -59,3 +60,7 @@ def user_lookup(args):
     twit = Client(args.config_path, log=True)
     twit.dump_stats(user=args.user_lookup)
     twit.extended_stats(user=args.user_lookup)
+
+
+def enumerate_twit(args):
+    twit = Crawler(args.config_path, args.enum_search)

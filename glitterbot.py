@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from lib.functions import daemon_mode, tweet_list, retweet, tweet, \
-    get_my_stats, user_lookup
+    get_my_stats, user_lookup, enumerate_twit
 from lib.parser import parse_args, sanitize_args
 from sys import exit
 
@@ -22,6 +22,8 @@ def run():
         get_my_stats(args)
     if args.user_lookup:
         user_lookup(args)
+    if args.enum_search:
+        enumerate_twit(args)
     exit()
 
 
