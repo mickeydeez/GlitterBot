@@ -77,7 +77,11 @@ class Daemon(object):
 
         }
         with open(self.config_path, 'r') as f:
-            data = load(f.read())
+            try:
+                data = load(f.read())
+            except:
+                logging.info("Error in configuration syntax, keeping old values")
+                return
         if not isinstance(data['watched_hashtags'], list):
             raise BadConfiguration
         else:
