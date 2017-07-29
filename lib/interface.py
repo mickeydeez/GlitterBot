@@ -105,9 +105,9 @@ class CursesInterface(object):
                 window.addstr(8, 10, self.fave_str)
                 window.addstr(10, 10, "[*] Current Status")
                 window.addstr(11, 10, "\t- %s" % self.current_status)
-                window.addstr(13, 10, "[*] Recent Events")
-                self.dump_recent_events(window, 14)
-                self.dump_errors(window, 25)
+                window.addstr(14, 10, "[*] Recent Events")
+                self.dump_recent_events(window, 15)
+                self.dump_errors(window, 26)
                 window.refresh()
                 sleep(2)
 
