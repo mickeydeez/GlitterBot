@@ -54,6 +54,18 @@ class CursesInterface(object):
                 window.addstr(index, 10, "\t- Error: %s" % e)
             index += 1
 
+    def dump_errors(self, window, index):
+        if len(self.daemon.log_handler.recent_errors) > 0:
+            window.addstr(index, 10, "[*] Recent Errors")
+            index += 1
+            for item in self.daemon.log_handler.recent_errors:
+                window.addstr(
+                    index,
+                    10,
+                    '- %s' % item
+                )
+                index += 1
+
     def get_account_stats(self):
         if self.running:
             self.userdata = self.daemon.client.api.me()
@@ -79,7 +91,7 @@ class CursesInterface(object):
         while True:
             if self.running:
                 self.format_strings()
-                for i in range(25):
+                for i in range(30):
                     whitespace = ' ' * 150
                     window.addstr(i, 10, whitespace)
                 window.addstr(1, 10, self.header)
@@ -95,6 +107,7 @@ class CursesInterface(object):
                 window.addstr(11, 10, "\t- %s" % self.current_status)
                 window.addstr(13, 10, "[*] Recent Events")
                 self.dump_recent_events(window, 14)
+                self.dump_errors(window, 25)
                 window.refresh()
                 sleep(2)
 

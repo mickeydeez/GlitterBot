@@ -19,7 +19,11 @@ def daemon_mode(config_path):
         interface = CursesInterface(twit)
         interface.run()
         while active_count() > 0:
-            sleep(0.1)
+            try:
+                sleep(1)
+            except Exception as e:
+                twit.log_handler.emit(e, rec_type='error')
+                sleep(1)
     except KeyboardInterrupt:
         print("[*] Stopping threads. This may take a while depending on sleep times.")
         twit.catch_signal(None, None)
