@@ -24,6 +24,7 @@ def daemon_mode(config_path):
         print("[*] Stopping threads. This may take a while depending on sleep times.")
         twit.catch_signal(None, None)
         twit.stop_threads()
+        interface.stop_threads()
         exit()
 
 

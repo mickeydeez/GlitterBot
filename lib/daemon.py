@@ -278,11 +278,40 @@ class Daemon(object):
                         cmd = "str('%s').lower() in tweet.text.lower() or False" % (
                             item
                         )
+                        status = eval(cmd)
                     else:
-                        cmd = "tweet.%s.lower() == str('%s').lower() or False" % (
-                            value['tweet_suffix'], item
-                        )
-                    if eval(cmd):
+                        cmd = 'type(tweet.%s)' % value['tweet_suffix']
+                        itype = eval(cmd)
+                        if itype is str:
+                            cmd = "tweet.%s.lower() == str('%s').lower() or False" % (
+                                value['tweet_suffix'], item
+                            )
+                            status = eval(cmd)
+                        elif itype is list:
+                            cmd = "type(tweet.%s[0])" % value['tweet_suffix']
+                            stype = eval(cmd)
+                            if stype is dict:
+                                cmd = "[ True for x in tweet.%s if str('%s').lower() in x['text'].lower() ]" % (
+                                    value['tweet_suffix'], item
+                                )
+                            else:
+                                cmd = "[ True for x in tweet.%s if str('%s').lower() in x.lower() ]" % (
+                                    value['tweet_suffix'], item
+                                )
+                            try:
+                                res = eval(cmd)
+                            except Exception as e:
+                                data = eval("tweet.%s" % value['tweet_suffix'])
+                                print(data)
+                                print(key)
+                                print(item)
+                                print(e)
+                                raise
+                            if len(res) >= 1:
+                                status = True
+                            else:
+                                status = False
+                    if status:
                         return self.log_filtered(key)
             else:
                 pass
