@@ -51,7 +51,7 @@ class CursesInterface(object):
                     )
                 )
             except UnicodeEncodeError as e:
-                window.addstr(index, 10, "\t- Error: %s" % e)
+                window.addstr(index, 14, "- Error: %s" % e)
             index += 1
 
     def dump_errors(self, window, index):
@@ -61,7 +61,7 @@ class CursesInterface(object):
             for item in self.daemon.log_handler.recent_errors:
                 window.addstr(
                     index,
-                    10,
+                    14,
                     '- %s' % item
                 )
                 index += 1
