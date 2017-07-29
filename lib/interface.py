@@ -14,6 +14,8 @@ class CursesInterface(object):
         self.update_user_status()
         self.get_account_stats()
         self.index = 0
+        self.ltab_value = 10
+        self.rpad_value = 20
         self.art = "`'*'`"*3
         self.header = "%s GlitterBot %s" % ( self.art, self.art )
         self.author_info = "Author: Mickey"
@@ -154,22 +156,28 @@ class CursesInterface(object):
             status_header
         )
         self.index += 1
-        current_status = "\t- %s" % self.current_status
+        current_status = " - %s" % self.current_status
+        if len(current_status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
+            lim = self.term_x_max - (self.ltab_value + self.rpad_value)
+            status_string = "%s..." % current_status[:lim]
+        else:
+            status_string = current_status
         window.addstr(
             self.index,
-            self.determine_ltab_pos(len(current_status)),
-            current_status
+            self.determine_ltab_pos(len(status_string)),
+            status_string
         )
 
     def dump_recent_events(self, window):
-        self.index += 3
+        self.index += 2
         window.addstr(self.index, 10, "[*] Recent Events")
         self.index += 1
         for item in self.daemon.log_handler.recent_logs:
             try:
+                lim = self.term_x_max - (self.ltab_value + self.rpad_value)
                 data = '  - %s%s' % (
-                    item.replace('\n', '(nl)')[:90],
-                    '...' if len(item) > 90 else ''
+                    item.replace('\n', '(nl)')[:lim],
+                    '...' if len(item) > lim else ''
                 )
                 window.addstr(
                     self.index,
@@ -241,7 +249,7 @@ class CursesInterface(object):
         return self.center - (length / 2)
 
     def determine_ltab_pos(self, length):
-        return 10
+        return self.ltab_value
 
     def determine_rtab_pos(self, length):
         return self.center + (self.term_y_max - self.center)
