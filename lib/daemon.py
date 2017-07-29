@@ -227,7 +227,7 @@ class Daemon(object):
                                     try:
                                         self.client.follow(tweet.user)
                                         self.total_follows += 1
-                                        follows = True
+                                        followed = True
                                         sleep(3)
                                     except tweepy.TweepError as e:
                                         logging.info(e.reason)
