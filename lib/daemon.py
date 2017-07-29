@@ -104,7 +104,9 @@ class Daemon(object):
             try:
                 data = load(f.read())
             except:
-                logging.info("Error in configuration syntax, keeping old values")
+                msg = "Error in configuration syntax, keeping old values"
+                self.log_handler.emit(msg, rec_type='error')
+                logging.info(msg)
                 return
         if not isinstance(data['watched_hashtags'], list):
             raise BadConfiguration
@@ -308,11 +310,12 @@ class Daemon(object):
                                 res = eval(cmd)
                             except Exception as e:
                                 data = eval("tweet.%s" % value['tweet_suffix'])
-                                print(data)
-                                print(key)
-                                print(item)
-                                print(e)
-                                raise
+                                self.log_handler.emit("filter_error: %s - %s" % (
+                                        key, item
+                                    ),
+                                    rec_type = 'error'
+                                )
+                                status = True
                             if len(res) >= 1:
                                 status = True
                             else:
