@@ -128,11 +128,11 @@ class CursesInterface(object):
     def clear_screen(self, window):
         for i in range(30):
             whitespace = ' ' * 150
-            window.addstr(i, 10, whitespace)
+            window.addstr(i, 0, whitespace)
 
     def dump_header(self, window):
         self.index += 1
-        window.addstr(self.index, 10, self.header)
+        window.addstr(self.index, 30, self.header)
         self.index += 1
         window.addstr(self.index, 10, "Author: mickey")
         self.index += 1
