@@ -23,10 +23,14 @@ class CursesInterface(object):
                 pass
             except KeyboardInterrupt:
                 print("[*] Stopping threads. This may take a while depending on sleep times.")
+                print("[*] You may need to hit Ctrl-C a couple more times :p")
                 self.stop_threads()
                 self.daemon.stop_threads()
                 break
             except:
+                print("[*] Curses error. Will attempt to fix myself.")
+                print("[*] You may need to resize your terminal")
+                sleep(1)
                 pass
 
     def stop_threads(self):
@@ -59,6 +63,7 @@ class CursesInterface(object):
                 )
             except UnicodeEncodeError as e:
                 window.addstr(index, 14, "- Error: %s" % e)
+                index += 1
             index += 1
 
     def dump_errors(self, window, index):
@@ -118,7 +123,7 @@ class CursesInterface(object):
                 window.addstr(12, 10, "\t- %s" % self.current_status)
                 window.addstr(15, 10, "[*] Recent Events")
                 self.dump_recent_events(window, 16)
-                self.dump_errors(window, 28)
+                self.dump_errors(window, 33)
                 window.refresh()
                 sleep(1)
 

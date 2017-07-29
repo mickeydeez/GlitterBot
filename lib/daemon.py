@@ -24,7 +24,7 @@ class Daemon(object):
 
         def emit(self, record, rec_type='info'):
             if rec_type == 'info':
-                if len(self.recent_logs) >= 10:
+                if len(self.recent_logs) >= 15:
                     del(self.recent_logs[0])
                 self.recent_logs.append(record)
             elif rec_type == 'error':
@@ -181,6 +181,9 @@ class Daemon(object):
                             self.client.tweet(tweet)
                             self.total_tweets += 1
                             self.update_tweets(tweet)
+                            self.log_handler.emit(
+                                "\tTweeted: %s" % tweet
+                            )
                             sleep(self.tweet_sleep)
                         else:
                             self.update_tweets(tweet)
@@ -237,16 +240,16 @@ class Daemon(object):
                                 retweeted = True
                             except tweepy.TweepError as e:
                                 logging.info(e.reason)
+                                reason = e.reason
                                 sleep(5)
-                            self.log_handler.emit(
-                                "Tweet by @%s: %s" % (
-                                    tweet.user.screen_name,
-                                    tweet.text
+                            if retweeted:
+                                self.log_handler.emit(
+                                    "\tRetweeted: retweeter sleeping for %s seconds" % self.retweet_sleep
                                 )
-                            )
-                            self.log_handler.emit(
-                                "\tRetweeted: %s" % retweeted
-                            )
+                            elif not retweeted:
+                                self.log_handler.emit(
+                                    "\tSkipped: %s" % reason
+                                )
                             if retweeted:
                                 sleep(self.retweet_sleep)
                             break
@@ -262,15 +265,22 @@ class Daemon(object):
 
     def is_worth_while_tweet(self, tweet):
         self.client.dump_tweet_stats(tweet)
+        self.log_handler.emit(
+            "Tweet by @%s: %s" % (
+                tweet.user.screen_name,
+                tweet.text
+            )
+        )
         if tweet.user.screen_name == self.client.name:
-            return self.log_filtered("It's you!")
+            return self.log_filtered("self_tweet")
         for key, value in self.filters.iteritems():
             if isinstance(value['value'], int):
                 cmd = "int(tweet.%s) < int(%s) or False" % (
                     value['tweet_suffix'], value['value']
                 )
                 if eval(cmd):
-                    return self.log_filtered(key)
+                    data = eval("int(tweet.%s)" % value['tweet_suffix'])
+                    return self.log_filtered(key, data=data)
             elif isinstance(value['value'], list):
                 for item in value['value']:
                     if key == 'trigger_phrases':
@@ -370,8 +380,16 @@ class Daemon(object):
             return True
 
 
-    def log_filtered(self, ftype):
-        logging.info("Failed to meet %s Filter" % ftype)
+    def log_filtered(self, data=None):
+        logging.info("Failed to meet %s filter" % ftype)
+        if not data:
+            self.log_handler.emit(
+                "\tSkipped: Failed to meet %s filter" % ftype
+            )
+        else:
+            self.log_handler.emit(
+                "\tSkipped: Failed to meet %s filter: " % (ftype, data)
+            ) 
         return False
 
 
