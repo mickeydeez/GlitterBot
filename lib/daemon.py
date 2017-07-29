@@ -245,12 +245,6 @@ class Daemon(object):
                                 )
                             )
                             self.log_handler.emit(
-                                "\tFavourited: %s" % favourited
-                            )
-                            self.log_handler.emit(
-                                "\tFollowing: %s" % bool(tweet.user.following) or followed
-                            )
-                            self.log_handler.emit(
                                 "\tRetweeted: %s" % retweeted
                             )
                             if retweeted:
