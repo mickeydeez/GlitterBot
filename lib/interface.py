@@ -13,7 +13,9 @@ class CursesInterface(object):
         self.running = True
         self.update_user_status()
         self.get_account_stats()
-        self.header = "*** GlitterBot ***"
+        self.index = 0
+        self.art = "`'*'`"*3
+        self.header = "%s GlitterBot %s" % ( self.art, self.art )
 
     def run(self):
         while True:
@@ -36,6 +38,20 @@ class CursesInterface(object):
     def stop_threads(self):
         self.running = False
 
+    def user_interface(self, window):
+        while True:
+            if self.running:
+                self.format_strings()
+                self.clear_screen(window)
+                self.dump_header(window)
+                self.dump_account_info(window)
+                self.dump_current_status(window)
+                self.dump_recent_events(window)
+                self.dump_errors(window)
+                window.refresh()
+                self.index = 0
+                sleep(1)
+
     def update_user_status(self):
         if self.running:
             try:
@@ -50,11 +66,20 @@ class CursesInterface(object):
                 self.update_user_status
             ).start()
 
-    def dump_recent_events(self, window, index):
+    def dump_current_status(self, window):
+        self.index += 2
+        window.addstr(self.index, 10, "[*] Current Status")
+        self.index += 1
+        window.addstr(self.index, 10, "\t- %s" % self.current_status)
+
+    def dump_recent_events(self, window):
+        self.index += 3
+        window.addstr(self.index, 10, "[*] Recent Events")
+        self.index += 1
         for item in self.daemon.log_handler.recent_logs:
             try:
                 window.addstr(
-                    index,
+                    self.index,
                     14,
                     '- %s%s' % (
                         item.replace('\n', '(nl)')[:90],
@@ -62,23 +87,23 @@ class CursesInterface(object):
                     )
                 )
             except UnicodeEncodeError as e:
-                window.addstr(index, 14, "- Error: %s" % e)
-                index += 1
-            index += 1
+                window.addstr(self.index, 14, "- Error: %s" % e)
+            self.index += 1
 
-    def dump_errors(self, window, index):
+    def dump_errors(self, window):
+        self.index += 2
         if len(self.daemon.log_handler.recent_errors) > 0:
-            window.addstr(index, 10, "[*] Recent Errors")
-            index += 1
+            window.addstr(self.index, 10, "[*] Recent Errors")
+            self.index += 1
             for item in self.daemon.log_handler.recent_errors:
                 window.addstr(
-                    index,
+                    self.index,
                     14,
                     '- %s' % item
                 )
-                index += 1
+                self.index += 1
         else:
-            window.addstr(index, 10, '[*] There have been no uncaught exceptions!')
+            window.addstr(self.index, 10, '[*] There have been no uncaught exceptions!')
 
     def get_account_stats(self):
         if self.running:
@@ -100,31 +125,37 @@ class CursesInterface(object):
         self.fave_str = "[*] Total Favourites: %s" % self.daemon.total_favourites
         self.following_str = "Total Followers: %s" % self.userdata.followers_count
 
+    def clear_screen(self, window):
+        for i in range(30):
+            whitespace = ' ' * 150
+            window.addstr(i, 10, whitespace)
 
-    def user_interface(self, window):
-        while True:
-            if self.running:
-                self.format_strings()
-                for i in range(30):
-                    whitespace = ' ' * 150
-                    window.addstr(i, 10, whitespace)
-                window.addstr(1, 10, self.header)
-                window.addstr(2, 10, "Author: mickey")
-                window.addstr(3, 10, "REMEMBER: Always be careful clicking links. Best to verify from the account first.")
-                window.addstr(5, 10, self.account_str)
-                window.addstr(6, 10, self.uptime_str)
-                window.addstr(7, 10, self.tweet_str)
-                window.addstr(8, 10, self.retweet_str)
-                window.addstr(8, 45, self.config_reload_string)
-                window.addstr(9, 10, self.follow_str)
-                window.addstr(9, 45, self.following_str)
-                window.addstr(10, 10, self.fave_str)
-                window.addstr(10, 45, "Press Ctrl-C to initiate a terminate sequence")
-                window.addstr(12, 10, "[*] Current Status")
-                window.addstr(13, 10, "\t- %s" % self.current_status)
-                window.addstr(16, 10, "[*] Recent Events")
-                self.dump_recent_events(window, 17)
-                self.dump_errors(window, 34)
-                window.refresh()
-                sleep(1)
+    def dump_header(self, window):
+        self.index += 1
+        window.addstr(self.index, 10, self.header)
+        self.index += 1
+        window.addstr(self.index, 10, "Author: mickey")
+        self.index += 1
+        window.addstr(
+            self.index,
+            10,
+            "REMEMBER: Always be careful clicking links. Best to verify from the account first."
+        )
+
+    def dump_account_info(self, window):
+        self.index += 2
+        window.addstr(self.index, 10, self.account_str)
+        self.index += 1
+        window.addstr(self.index, 10, self.uptime_str)
+        self.index += 1
+        window.addstr(self.index, 10, self.tweet_str)
+        self.index += 1
+        window.addstr(self.index, 10, self.retweet_str)
+        window.addstr(self.index, 45, self.config_reload_string)
+        self.index += 1
+        window.addstr(self.index, 10, self.follow_str)
+        window.addstr(self.index, 45, self.following_str)
+        self.index += 1
+        window.addstr(self.index, 10, self.fave_str)
+        window.addstr(self.index, 45, "Press Ctrl-C to initiate a terminate sequence")
 
