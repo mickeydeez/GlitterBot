@@ -86,9 +86,10 @@ class CursesInterface(object):
                         '...' if len(item) > 90 else ''
                     )
                 )
+                self.index += 1
             except UnicodeEncodeError as e:
-                window.addstr(self.index, 14, "- Error: %s" % e)
-            self.index += 1
+                window.addstr(self.index, 14, "- Print Error: %s" % e)
+                self.index += 1
 
     def dump_errors(self, window):
         self.index += 2
