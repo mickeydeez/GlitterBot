@@ -103,6 +103,7 @@ class CursesInterface(object):
                 window.addstr(7, 10, self.follow_str)
                 window.addstr(7, 45, self.following_str)
                 window.addstr(8, 10, self.fave_str)
+                window.addstr(8, 45, "Press Ctrl-C to initiate a terminate sequence")
                 window.addstr(10, 10, "[*] Current Status")
                 window.addstr(11, 10, "\t- %s" % self.current_status)
                 window.addstr(14, 10, "[*] Recent Events")
