@@ -67,7 +67,7 @@ class CursesInterface(object):
             self.determine_center_pos(len(self.header)),
             self.header
         )
-        self.index += 1
+        self.index += 2
         window.addstr(
             self.index,
             self.determine_ltab_pos(len(self.author_info)),
