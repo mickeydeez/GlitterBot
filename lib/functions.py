@@ -25,10 +25,6 @@ def daemon_mode(config_path):
                 twit.log_handler.emit(e, rec_type='error')
                 sleep(1)
     except KeyboardInterrupt:
-        print("[*] Stopping threads. This may take a while depending on sleep times.")
-        twit.catch_signal(None, None)
-        twit.stop_threads()
-        interface.stop_threads()
         exit()
 
 

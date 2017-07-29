@@ -21,6 +21,11 @@ class CursesInterface(object):
                 curses.wrapper(self.user_interface)
             except RateLimitError:
                 pass
+            except KeyboardInterrupt:
+                print("[*] Stopping threads. This may take a while depending on sleep times.")
+                self.stop_threads()
+                self.daemon.stop_threads()
+                break
             except:
                 pass
 
@@ -67,6 +72,8 @@ class CursesInterface(object):
                     '- %s' % item
                 )
                 index += 1
+        else:
+            window.addstr(index, 10, '[*] There have been no uncaught exceptions!')
 
     def get_account_stats(self):
         if self.running:
