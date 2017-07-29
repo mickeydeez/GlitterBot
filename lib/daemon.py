@@ -275,7 +275,7 @@ class Daemon(object):
             return self.log_filtered("It's you!")
         for key, value in self.filters.iteritems():
             if isinstance(value['value'], int):
-                cmd = "tweet.%s < int(%s) or False" % (
+                cmd = "int(tweet.%s) < int(%s) or False" % (
                     value['tweet_suffix'], value['value']
                 )
                 if eval(cmd):
