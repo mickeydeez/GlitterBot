@@ -275,11 +275,11 @@ class Daemon(object):
             elif isinstance(value['value'], list):
                 for item in value['value']:
                     if key == 'trigger_phrases':
-                        cmd = "str('%s') in tweet.text or False" % (
+                        cmd = "str('%s').lower() in tweet.text.lower() or False" % (
                             item
                         )
                     else:
-                        cmd = "tweet.%s == str('%s') or False" % (
+                        cmd = "tweet.%s.lower() == str('%s').lower() or False" % (
                             value['tweet_suffix'], item
                         )
                     if eval(cmd):
