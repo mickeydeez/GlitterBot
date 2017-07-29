@@ -3,6 +3,7 @@
 from lib.client import Client
 from lib.daemon import Daemon
 from lib.crawler import Crawler
+from lib.interface import CursesInterface
 from time import sleep
 from sys import exit
 from threading import active_count
@@ -10,11 +11,13 @@ from os import path
 
 
 def daemon_mode(config_path):
-    twit = Daemon(config_path)
-    twit.spawn_watchers()
-    twit.spawn_tweet_thread()
-    twit.spawn_retweet_thread()
     try:
+        twit = Daemon(config_path, log=False)
+        twit.spawn_watchers()
+        twit.spawn_tweet_thread()
+        twit.spawn_retweet_thread()
+        interface = CursesInterface(twit)
+        interface.run()
         while active_count() > 0:
             sleep(0.1)
     except KeyboardInterrupt:
