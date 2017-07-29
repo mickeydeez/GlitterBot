@@ -120,5 +120,5 @@ class CursesInterface(object):
                 self.dump_recent_events(window, 16)
                 self.dump_errors(window, 28)
                 window.refresh()
-                sleep(2)
+                sleep(1)
 

@@ -23,17 +23,14 @@ class Daemon(object):
             self.recent_errors = []
 
         def emit(self, record, rec_type='info'):
-            try:
-                if rec_type == 'info':
-                    if len(self.recent_logs) >= 10:
-                        del(self.recent_logs[0])
-                    self.recent_logs.append(record)
-                elif rec_type == 'error':
-                    if len(self.recent_errors) >= 10:
-                        del(self.recent_errors[0])
-                    self.recent_errors.append(record)
-            except (KeyboardInterrupt, SystemExit):
-                raise
+            if rec_type == 'info':
+                if len(self.recent_logs) >= 10:
+                    del(self.recent_logs[0])
+                self.recent_logs.append(record)
+            elif rec_type == 'error':
+                if len(self.recent_errors) >= 10:
+                    del(self.recent_errors[0])
+                self.recent_errors.append(record)
 
 
     def __init__(self, config_path, log=True):
