@@ -40,6 +40,7 @@ class CursesInterface(object):
             except:
                 print("[*] Curses error. Will attempt to fix myself.")
                 print("[*] You may need to resize your terminal")
+                self.reset_index()
                 sleep(1)
                 pass
 
@@ -60,81 +61,27 @@ class CursesInterface(object):
                 self.dump_recent_events(window)
                 self.dump_errors(window)
                 window.refresh()
-                self.index = 0
+                self.reset_index()
                 sleep(1)
     
     def dump_header(self, window):
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_center_pos(len(self.header)),
-            self.header
-        )
-        self.index += 2
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.author_info)),
-            self.author_info
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.disclaimer)),
-            self.disclaimer
-        )
+        self.dump_line(window, '')
+        self.dump_line(window, self.header, inc=2, tab='center')
+        self.dump_line(window, self.author_info)
+        self.dump_line(window, self.disclaimer)
+        self.dump_line(window, '')
 
     def dump_account_info(self, window):
-        self.index += 2
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.account_str)),
-            self.account_str
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.uptime_str)),
-            self.uptime_str
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.tweet_str)),
-            self.tweet_str
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.retweet_str)),
-            self.retweet_str
-        )
-        window.addstr(
-            self.index,
-            self.determine_rtab_pos(len(self.config_reload_string)),
-            self.config_reload_string
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.follow_str)),
-            self.follow_str
-        )
-        window.addstr(
-            self.index,
-            self.determine_rtab_pos(len(self.following_str)),
-            self.following_str
-        )
-        self.index += 1
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(self.fave_str)),
-            self.fave_str
-        )
-        window.addstr(
-            self.index,
-            self.determine_rtab_pos(len(self.exit_help)),
-            self.exit_help
-        )
+        self.dump_line(window, self.account_str)
+        self.dump_line(window, self.uptime_str)
+        self.dump_line(window, self.tweet_str)
+        self.dump_line(window, self.retweet_str, inc=0)
+        self.dump_line(window, self.config_reload_string, inc=1, tab='right')
+        self.dump_line(window, self.follow_str, inc=0)
+        self.dump_line(window, self.following_str, inc=1, tab='right')
+        self.dump_line(window, self.fave_str, inc=0)
+        self.dump_line(window, self.exit_help, inc=1, tab='right')
+        self.dump_line(window, '')
     
     def update_user_status(self):
         if self.running:
@@ -151,30 +98,37 @@ class CursesInterface(object):
             ).start()
 
     def dump_current_status(self, window):
-        self.index += 2
         status_header = "[*] Current Status"
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(status_header)),
-            status_header
-        )
-        self.index += 1
-        current_status = " - %s" % self.current_status
-        if len(current_status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
+        self.dump_line(window, status_header)
+        status_strings = self.format_status(self.current_status)
+        for string in status_strings:
+            self.dump_line(window, string)
+        self.dump_line(window, '')
+
+    def format_status(self, status):
+        status_strings = []
+        if len(status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
             lim = self.term_x_max - (self.ltab_value + self.rpad_value)
-            status_string = "%s..." % current_status[:lim]
+            words = status.split()
+            string = ''
+            index = 0
+            for item in words:
+                if len(string) < lim:
+                    string = "%s%s " % (string, item)
+                    index += 1
+                else:
+                    break
+            status_strings.append(string)
+            string = '    '
+            for item in words[index:]:
+                string = "%s%s " % (string, item)
+            status_strings.append(string)
         else:
-            status_string = current_status
-        window.addstr(
-            self.index,
-            self.determine_ltab_pos(len(status_string)),
-            status_string
-        )
+            status_strings.append(status)
+        return status_strings
 
     def dump_recent_events(self, window):
-        self.index += 2
-        window.addstr(self.index, 10, "[*] Recent Events")
-        self.index += 1
+        self.dump_line(window, "[*] Recent Events")
         for item in self.daemon.log_handler.recent_logs:
             item.encode('utf-8')
             try:
@@ -183,46 +137,23 @@ class CursesInterface(object):
                     item.replace('\n', '(nl)')[:lim],
                     '...' if len(item) > lim else ''
                 )
-                window.addstr(
-                    self.index,
-                    self.determine_ltab_pos(len(data)),
-                    data
-                )
-                self.index += 1
+                self.dump_line(window, data)
             except UnicodeEncodeError as e:
                 error = "  - Print Error: %s" % e
-                window.addstr(
-                    self.index,
-                    self.determine_ltab_pos(len(error)),
-                    error
-                )
-                self.index += 1
+                self.dump_line(window, error)
+        self.dump_line(window, '')
 
     def dump_errors(self, window):
-        self.index += 2
         if len(self.daemon.log_handler.recent_errors) > 0:
             error_header = "[*] Errors"
-            window.addstr(
-                self.index,
-                self.deteremine_ltab_pos(len(error_header)),
-                error_header
-            )
-            self.index += 1
+            self.dump_line(window, error_header)
             for item in self.daemon.log_handler.recent_errors:
                 data = " - %s" % item
-                window.addstr(
-                    self.index,
-                    self.determine_ltab_pos(len(data)),
-                    data
-                )
-                self.index += 1
+                self.dump_line(window, data)
         else:
             no_error = "[*] There have been no uncaught exceptions"
-            window.addstr(
-                self.index,
-                self.determine_ltab_pos(len(no_error)),
-                no_error
-            )
+            self.dump_line(window, no_error)
+        self.dump_line(window, '')
 
     def get_account_stats(self):
         if self.running:
@@ -256,5 +187,29 @@ class CursesInterface(object):
         return self.ltab_value
 
     def determine_rtab_pos(self, length):
-        return self.center + (self.term_y_max - self.center)
+        return self.center + (self.term_y_max - (self.center / 2))
+
+    def reset_index(self):
+        self.index = 0
+
+    def dump_line(self, window, data, inc=1, tab='left'):
+        if tab == 'left':
+            window.addstr(
+                self.index,
+                self.determine_ltab_pos(len(data)),
+                data
+            )
+        elif tab == 'right':
+            window.addstr(
+                self.index,
+                self.determine_rtab_pos(len(data)),
+                data
+            )
+        elif tab == 'center':
+            window.addstr(
+                self.index,
+                self.determine_center_pos(len(data)),
+                data
+            )
+        self.index += inc
 
