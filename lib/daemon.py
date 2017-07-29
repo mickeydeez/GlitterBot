@@ -388,7 +388,7 @@ class Daemon(object):
             )
         else:
             self.log_handler.emit(
-                "\tSkipped: Failed to meet %s filter: " % (ftype, data)
+                "\tSkipped: Failed to meet %s filter: %s" % (ftype, data)
             ) 
         return False
 
