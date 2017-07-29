@@ -5,6 +5,7 @@ from tweepy.error import RateLimitError
 from threading import Timer
 
 import curses
+import sys
 
 class CursesInterface(object):
 
@@ -21,6 +22,8 @@ class CursesInterface(object):
         self.author_info = "Author: Mickey"
         self.disclaimer = "REMEMBER: Always be careful clicking links. Best to verify from the account first."
         self.exit_help = "Press Ctrl-C to initiate a terminate sequence"
+        reload(sys)
+        sys.setdefaultencoding("utf-8")
 
     def run(self):
         while True:
@@ -173,6 +176,7 @@ class CursesInterface(object):
         window.addstr(self.index, 10, "[*] Recent Events")
         self.index += 1
         for item in self.daemon.log_handler.recent_logs:
+            item.encode('utf-8')
             try:
                 lim = self.term_x_max - (self.ltab_value + self.rpad_value)
                 data = '  - %s%s' % (
