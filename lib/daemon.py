@@ -16,6 +16,20 @@ import logging
 
 class Daemon(object):
 
+    class LogHandler(object):
+
+        def __init__(self):
+            self.recent_logs = []
+
+        def emit(self, record):
+            try:
+                if len(self.recent_logs) >= 10:
+                    del(self.recent_logs[0])
+                self.recent_logs.append(record)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+
+
     def __init__(self, config_path, log=True):
         self.config_path = config_path
         self.client = Client(config_path, log=log)
@@ -27,12 +41,15 @@ class Daemon(object):
         self.total_tweets = 0
         self.total_follows = 0
         self.total_favourites = 0
+        self.uptime = ''
+        self.last_tweet_user = ''
+        self.last_tweet_text = ''
+        self.log_handler = self.LogHandler()
         signal(SIGUSR1, self.catch_signal)
         if log:
             logging.basicConfig(level=self.client.log_level,
                 format='[%(levelname)s] (%(threadName)-10s) %(message)s'
             )
-
 
     def spawn_watchers(self):
         Timer(
@@ -43,7 +60,10 @@ class Daemon(object):
             self.tweets_reload_time,
             self.tweet_watcher
         ).start()
-
+        uptime_thread = Timer(
+            2,
+            self.track_uptime
+        ).start()
 
     def spawn_tweet_thread(self):
         tweet_thread = Thread(
@@ -53,7 +73,6 @@ class Daemon(object):
         tweet_thread.setDaemon(True)
         tweet_thread.start()
     
-    
     def spawn_retweet_thread(self):
         retweet_thread = Thread(
             name = 'retweeter',
@@ -61,7 +80,6 @@ class Daemon(object):
         )
         retweet_thread.setDaemon(True)
         retweet_thread.start()
-
 
     def reload_config(self):
         self.filters = {
@@ -94,11 +112,11 @@ class Daemon(object):
         except:
             self.tweets_path = None
         try:
-            self.min_hour = data['minimum_hour']
-            self.max_hour = data['maximum_hour']
+            self.min_hour = data['minimum_hour'] or None
+            self.max_hour = data['maximum_hour'] or None
         except KeyError:
-            self.mix_hour = 10
-            self.max_hour = 22
+            self.min_hour = None
+            self.max_hour = None
         try:
             self.follow_users = bool(data['follow_users']) or False
         except KeyError:
@@ -137,6 +155,7 @@ class Daemon(object):
                     ))
             except KeyError:
                 pass
+            self.last_config_reload = datetime.now()
 
     def async_tweet(self):
         while True:
@@ -169,7 +188,6 @@ class Daemon(object):
             else:
                 sleep(60)
 
-
     def async_retweet(self):
         while True:
             if not self.running:
@@ -184,9 +202,14 @@ class Daemon(object):
                         logging.info('\nTweet by: @' + tweet.user.screen_name)
                         logging.info(tweet.text)
                         if self.is_worth_while_tweet(tweet):
+                            retweeted = False
+                            favourited = False
+                            followed = False
                             try:
                                 self.client.favourite(tweet)
                                 self.total_favourites += 1
+                                favourited = True
+                                sleep(3)
                             except tweepy.TweepError as e:
                                 sleep(3)
                                 logging.info(e.reason)
@@ -196,6 +219,7 @@ class Daemon(object):
                                     try:
                                         self.client.follow(tweet.user)
                                         self.total_follows += 1
+                                        follows = True
                                         sleep(3)
                                     except tweepy.TweepError as e:
                                         logging.info(e.reason)
@@ -205,10 +229,27 @@ class Daemon(object):
                             try:
                                 self.client.retweet(tweet)
                                 self.total_retweets += 1
-                                sleep(self.retweet_sleep)
+                                retweeted = True
                             except tweepy.TweepError as e:
                                 logging.info(e.reason)
                                 sleep(5)
+                            self.log_handler.emit(
+                                "Tweet by @%s: %s" % (
+                                    tweet.user.screen_name,
+                                    tweet.text
+                                )
+                            )
+                            self.log_handler.emit(
+                                "\tFavourited: %s" % favourited
+                            )
+                            self.log_handler.emit(
+                                "\tFollowing: %s" % bool(tweet.user.following) or followed
+                            )
+                            self.log_handler.emit(
+                                "\tRetweeted: %s" % retweeted
+                            )
+                            if retweeted:
+                                sleep(self.retweet_sleep)
                             break
                     else:
                         continue
@@ -219,7 +260,6 @@ class Daemon(object):
                 logging.debug("Hit query end")
                 sleep(30)
                 continue
-
 
     def is_worth_while_tweet(self, tweet):
         self.client.dump_tweet_stats(tweet)
@@ -248,35 +288,34 @@ class Daemon(object):
                 pass
         return True
 
-
     def get_run_metrics(self):
+        logging.info("[*] Uptime: %s" % self.uptime)
         logging.info("[*] Total Tweets: %s" % self.total_tweets)
         logging.info("[*] Total Retweets: %s" % self.total_retweets)
         logging.info("[*] Total Follows: %s" % self.total_follows)
-        logging.info("[*] Total Favourtes: %s" % self.total_favourites)
+        logging.info("[*] Total Favourites: %s" % self.total_favourites)
     
-    
-    def get_uptime(self):
-        now = datetime.now()
-        uptime = now - self.start_time
-        seconds = uptime.total_seconds()
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = seconds % 60
-        if seconds == 0 or seconds > 1:
-            second_string = 'seconds'
-        else:
-            second_string = 'second'
-        if minutes == 0 or minutes > 1:
-            minute_string = 'minutes'
-        else:
-            minute_string = 'minute'
-        if hours == 0 or hours > 1:
-            hour_string = 'hours'
-        else:
-            hour_string = 'hour'
-        logging.info(
-            '[*] Uptime: %s %s, %s %s, %s %s' % (
+    def track_uptime(self):
+        if self.running:
+            now = datetime.now()
+            uptime = now - self.start_time
+            seconds = uptime.total_seconds()
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+            if seconds == 0 or seconds > 1:
+                second_string = 'seconds'
+            else:
+                second_string = 'second'
+            if minutes == 0 or minutes > 1:
+                minute_string = 'minutes'
+            else:
+                minute_string = 'minute'
+            if hours == 0 or hours > 1:
+                hour_string = 'hours'
+            else:
+                hour_string = 'hour'
+            self.uptime = '%s %s, %s %s, %s %s' % (
                 int(hours),
                 hour_string,
                 int(minutes),
@@ -284,7 +323,10 @@ class Daemon(object):
                 int(seconds),
                 second_string
             )
-        )
+            uptime_thread = Timer(
+                2,
+                self.track_uptime
+            ).start()
 
 
     def is_operating_time(self):
@@ -293,6 +335,7 @@ class Daemon(object):
         now = datetime.now()
         if now.hour < self.min_hour or now.hour > self.max_hour:
             logging.info("We are sleeping right now...")
+            self.log_handler.emit("We are sleeping...")
             return False
         else:
             return True
@@ -323,7 +366,6 @@ class Daemon(object):
 
     def catch_signal(self, signum, frame):
         logging.info("[*] Caught signal. Dumping stats...")
-        self.get_uptime()
         self.get_run_metrics()
         self.client.dump_stats()
 
