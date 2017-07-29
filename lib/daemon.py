@@ -380,7 +380,7 @@ class Daemon(object):
             return True
 
 
-    def log_filtered(self, data=None):
+    def log_filtered(self, ftype, data=None):
         logging.info("Failed to meet %s filter" % ftype)
         if not data:
             self.log_handler.emit(
