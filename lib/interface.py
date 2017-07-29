@@ -21,6 +21,8 @@ class CursesInterface(object):
                 curses.wrapper(self.user_interface)
             except RateLimitError:
                 pass
+            except:
+                pass
 
     def stop_threads(self):
         self.running = False
