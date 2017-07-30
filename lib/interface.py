@@ -16,7 +16,7 @@ class CursesInterface(object):
         self.get_account_stats()
         self.index = 0
         self.ltab_value = 10
-        self.rpad_value = 27
+        self.rpad_value = 10
         self.art = "`'*'`"*3
         self.header = "%s GlitterBot %s" % ( self.art, self.art )
         self.author_info = "Author: Mickey"
@@ -187,6 +187,7 @@ class CursesInterface(object):
         self.following_str = "Total Followers: %s" % self.userdata.followers_count
 
     def clear_screen(self, window):
+        self.max_rtab = self.term_x_max
         window.erase()
 
     def determine_center_pos(self, length):
@@ -196,7 +197,10 @@ class CursesInterface(object):
         return self.ltab_value
 
     def determine_rtab_pos(self, length):
-        return (self.center + (self.term_y_max - (self.center / 2)) - self.rpad_value)
+        val = (self.term_x_max - (self.rpad_value * 2) - length)
+        if val < self.max_rtab:
+            self.max_rtab = val
+        return self.max_rtab
 
     def reset_index(self):
         self.index = 0
