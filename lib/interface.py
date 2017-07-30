@@ -197,7 +197,7 @@ class CursesInterface(object):
         return self.ltab_value
 
     def determine_rtab_pos(self, length):
-        val = (self.term_x_max - (self.rpad_value * 2) - length)
+        val = (self.term_x_max - self.rpad_value - length)
         if val < self.max_rtab:
             self.max_rtab = val
         return self.max_rtab
