@@ -151,7 +151,7 @@ class CursesInterface(object):
                 data = " - %s" % item
                 self.dump_line(window, data)
         else:
-            no_error = "[*] There have been no uncaught exceptions"
+            no_error = "[*] There have been no unexpected problems"
             self.dump_line(window, no_error)
         self.dump_line(window, '')
 
