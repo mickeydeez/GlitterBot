@@ -144,7 +144,8 @@ class CursesInterface(object):
                     )
                     self.dump_line(window, data)
                 else:
-                    self.dump_line(window, item)
+                    data = '  - %s' % item
+                    self.dump_line(window, data)
             except UnicodeEncodeError as e:
                 error = "  - Print Error: %s" % e
                 self.dump_line(window, error)
