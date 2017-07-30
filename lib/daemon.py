@@ -117,8 +117,8 @@ class Daemon(object):
         except:
             self.tweets_path = None
         try:
-            self.min_hour = data['minimum_hour'] or None
-            self.max_hour = data['maximum_hour'] or None
+            self.min_hour = int(data['minimum_hour']) or None
+            self.max_hour = int(data['maximum_hour']) or None
         except KeyError:
             self.min_hour = None
             self.max_hour = None
@@ -372,7 +372,7 @@ class Daemon(object):
         if not self.min_hour or not self.max_hour:
             return True
         now = datetime.now()
-        if now.hour < self.min_hour or now.hour > self.max_hour:
+        if int(self.min_hour) < int(now.hour) <= int(self.max_hour):
             logging.info("We are sleeping right now...")
             self.log_handler.emit("We are sleeping...")
             return False

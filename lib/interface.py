@@ -51,6 +51,7 @@ class CursesInterface(object):
         while True:
             if self.running:
                 max_y, max_x = window.getmaxyx()
+                window.resize(max_y, max_x)
                 self.term_y_max = max_y - 1
                 self.term_x_max = max_x - 1
                 self.center = self.term_x_max / 2
