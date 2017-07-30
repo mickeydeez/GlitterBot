@@ -298,17 +298,19 @@ class Daemon(object):
                             status = eval(cmd)
                         elif itype is list:
                             cmd = "type(tweet.%s[0])" % value['tweet_suffix']
-                            stype = eval(cmd)
-                            if stype is dict:
-                                cmd = "[ True for x in tweet.%s if str('%s').lower() in x['text'].lower() ]" % (
-                                    value['tweet_suffix'], item
-                                )
-                            else:
-                                cmd = "[ True for x in tweet.%s if str('%s').lower() in x.lower() ]" % (
-                                    value['tweet_suffix'], item
-                                )
                             try:
+                                stype = eval(cmd)
+                                if stype is dict:
+                                    cmd = "[ True for x in tweet.%s if str('%s').lower() in x['text'].lower() ]" % (
+                                        value['tweet_suffix'], item
+                                    )
+                                else:
+                                    cmd = "[ True for x in tweet.%s if str('%s').lower() in x.lower() ]" % (
+                                        value['tweet_suffix'], item
+                                    )
                                 res = eval(cmd)
+                            except IndexError:
+                                res = []
                             except Exception as e:
                                 data = eval("tweet.%s" % value['tweet_suffix'])
                                 self.log_handler.emit("filter_error: %s - %s" % (
@@ -324,7 +326,7 @@ class Daemon(object):
                     if status:
                         return self.log_filtered(key)
             else:
-                pass
+                self.log_handler.emit("Unfixed filter: %s" % key, rec_type='error')
         return True
 
     def get_run_metrics(self):
