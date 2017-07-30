@@ -372,7 +372,7 @@ class Daemon(object):
         if not self.min_hour or not self.max_hour:
             return True
         now = datetime.now()
-        if int(self.min_hour) < int(now.hour) <= int(self.max_hour):
+        if not int(self.min_hour) < int(now.hour) <= int(self.max_hour):
             logging.info("We are sleeping right now...")
             self.log_handler.emit("We are sleeping...")
             return False
