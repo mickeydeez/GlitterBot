@@ -133,11 +133,14 @@ class CursesInterface(object):
             item.encode('utf-8')
             try:
                 lim = self.term_x_max - (self.ltab_value + self.rpad_value)
-                data = '  - %s%s' % (
-                    item.replace('\n', '(nl)')[:lim],
-                    '...' if len(item) > lim else ''
-                )
-                self.dump_line(window, data)
+                if len(item) > lim:
+                    data = '  - %s%s' % (
+                        item.replace('\n', '(nl)')[:lim],
+                        '...' if len(item) > lim else ''
+                    )
+                    self.dump_line(window, data)
+                else:
+                    self.dump_line(window, item)
             except UnicodeEncodeError as e:
                 error = "  - Print Error: %s" % e
                 self.dump_line(window, error)
