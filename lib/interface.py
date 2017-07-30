@@ -102,6 +102,7 @@ class CursesInterface(object):
         status_header = "[*] Current Status"
         self.dump_line(window, status_header)
         status_strings = self.format_status(self.current_status)
+        self.dump_line(window, '')
         for string in status_strings:
             self.dump_line(window, string)
         self.dump_line(window, '')
@@ -111,19 +112,21 @@ class CursesInterface(object):
         if len(status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
             lim = self.term_x_max - (self.ltab_value + self.rpad_value)
             words = status.split()
-            string = ''
             index = 0
-            for item in words:
-                if len(string) < lim:
-                    string = "%s%s " % (string, item)
-                    index += 1
-                else:
+            while True:
+                string = ''
+                for item in words[index:]:
+                    if len(string) < lim:
+                        string = "%s%s " % (string, item)
+                        index += 1
+                    else:
+                        pass
+                if index == len(words):
+                    if string != '':
+                        status_strings.append(string)
                     break
-            status_strings.append(string)
-            string = '    '
-            for item in words[index:]:
-                string = "%s%s " % (string, item)
-            status_strings.append(string)
+                else:
+                    status_strings.append(string)
         else:
             status_strings.append(status)
         return status_strings
