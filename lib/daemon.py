@@ -292,7 +292,7 @@ class Daemon(object):
                         cmd = 'type(tweet.%s)' % value['tweet_suffix']
                         itype = eval(cmd)
                         if itype is str:
-                            cmd = "tweet.%s.lower() == str('%s').lower() or False" % (
+                            cmd = "tweet.%s.lower() == str('%s').lower().replace('@', '').replace('#', '') or False" % (
                                 value['tweet_suffix'], item
                             )
                             status = eval(cmd)
