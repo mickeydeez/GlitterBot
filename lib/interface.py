@@ -16,7 +16,7 @@ class CursesInterface(object):
         self.get_account_stats()
         self.index = 0
         self.ltab_value = 10
-        self.rpad_value = 20
+        self.rpad_value = 27
         self.art = "`'*'`"*3
         self.header = "%s GlitterBot %s" % ( self.art, self.art )
         self.author_info = "Author: Mickey"

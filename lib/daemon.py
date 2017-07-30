@@ -24,6 +24,11 @@ class Daemon(object):
 
         def emit(self, record, rec_type='info'):
             if rec_type == 'info':
+                try:
+                    if self.recent_logs[-1] == record:
+                        return
+                except IndexError:
+                    pass
                 if len(self.recent_logs) >= 15:
                     del(self.recent_logs[0])
                 self.recent_logs.append(record)
