@@ -30,13 +30,18 @@ class CursesInterface(object):
             try:
                 curses.wrapper(self.user_interface)
             except RateLimitError:
-                pass
+                self.reset_index()
+                self.daemon.log_handler.emit(
+                    "Rate Limit Error: %s" % datetime.now().strftime('%c'),
+                    rec_type='error'
+                )
+                sleep(1)
             except KeyboardInterrupt:
                 print("[*] Stopping threads. This may take a while depending on sleep times.")
                 print("[*] You may need to hit Ctrl-C a couple more times :p")
                 self.stop_threads()
                 self.daemon.stop_threads()
-                break
+                sys.exit()
             except curses.error:
                 self.reset_index()
                 print("[*] Window too short for entire display")
@@ -71,7 +76,7 @@ class CursesInterface(object):
     def dump_header(self, window):
         self.dump_line(window, '')
         self.dump_line(window, self.header, inc=2, tab='center')
-        self.dump_line(window, self.author_info)
+        self.dump_line(window, self.author_info, inc=2)
         self.dump_line(window, self.disclaimer)
         self.dump_line(window, '')
 
@@ -86,20 +91,6 @@ class CursesInterface(object):
         self.dump_line(window, self.fave_str, inc=0)
         self.dump_line(window, self.exit_help, inc=1, tab='right')
         self.dump_line(window, '')
-    
-    def update_user_status(self):
-        if self.running:
-            try:
-                self.current_status = self.daemon.client.api.me().status.text.encode('utf-8').replace(
-                    '\n',
-                    '(nl)'
-                )
-            except Exception as e:
-                self.current_status = "Error: %s" % e
-            status_thread = Timer(
-                30,
-                self.update_user_status
-            ).start()
 
     def dump_current_status(self, window):
         status_header = "[*] Current Status"
@@ -110,29 +101,6 @@ class CursesInterface(object):
             self.dump_line(window, string)
         self.dump_line(window, '')
 
-    def format_status(self, status):
-        status_strings = []
-        if len(status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
-            lim = self.term_x_max - (self.ltab_value + self.rpad_value)
-            words = status.split()
-            index = 0
-            while True:
-                string = ''
-                for item in words[index:]:
-                    if (len(string) + len(item)) < lim:
-                        string = "%s%s " % (string, item)
-                        index += 1
-                    else:
-                        pass
-                if index == len(words):
-                    if string != '':
-                        status_strings.append(string)
-                    break
-                else:
-                    status_strings.append(string)
-        else:
-            status_strings.append(status)
-        return status_strings
 
     def dump_recent_events(self, window):
         self.dump_line(window, "[*] Recent Events")
@@ -165,6 +133,44 @@ class CursesInterface(object):
             no_error = "[*] There have been no unexpected problems"
             self.dump_line(window, no_error)
         self.dump_line(window, '')
+    
+    def format_status(self, status):
+        status_strings = []
+        if len(status) > (self.term_x_max - (self.ltab_value + self.rpad_value)):
+            lim = self.term_x_max - (self.ltab_value + self.rpad_value)
+            words = status.split()
+            index = 0
+            while True:
+                string = ''
+                for item in words[index:]:
+                    if (len(string) + len(item)) < lim:
+                        string = "%s%s " % (string, item)
+                        index += 1
+                    else:
+                        break
+                if index >= len(words):
+                    if string != '':
+                        status_strings.append(string)
+                    break
+                else:
+                    status_strings.append(string)
+        else:
+            status_strings.append(status)
+        return status_strings
+    
+    def update_user_status(self):
+        if self.running:
+            try:
+                self.current_status = self.daemon.client.api.me().status.text.encode('utf-8').replace(
+                    '\n',
+                    '(nl)'
+                )
+            except Exception as e:
+                self.current_status = "Error: %s" % e
+            status_thread = Timer(
+                30,
+                self.update_user_status
+            ).start()
 
     def get_account_stats(self):
         if self.running:
