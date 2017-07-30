@@ -184,7 +184,7 @@ class CursesInterface(object):
         self.following_str = "Total Followers: %s" % self.userdata.followers_count
 
     def clear_screen(self, window):
-        window.clear()
+        window.erase()
 
     def determine_center_pos(self, length):
         return self.center - (length / 2)
