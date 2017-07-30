@@ -37,12 +37,14 @@ class CursesInterface(object):
                 self.stop_threads()
                 self.daemon.stop_threads()
                 break
-            except:
-                print("[*] Curses error. Will attempt to fix myself.")
-                print("[*] You may need to resize your terminal")
+            except curses.error:
                 self.reset_index()
+                print("[*] If you can't see anything your screen is too short")
                 sleep(1)
-                pass
+            except Exception as e:
+                self.reset_index()
+                self.daemon.log_handler.emit(e, rec_type='error')
+                sleep(1)
 
     def stop_threads(self):
         self.running = False
