@@ -50,8 +50,9 @@ class CursesInterface(object):
     def user_interface(self, window):
         while True:
             if self.running:
-                self.term_y_max = curses.LINES - 1
-                self.term_x_max = curses.COLS - 1
+                max_y, max_x = window.getmaxyx()
+                self.term_y_max = max_y - 1
+                self.term_x_max = max_x - 1
                 self.center = self.term_x_max / 2
                 self.format_strings()
                 self.clear_screen(window)
@@ -179,9 +180,7 @@ class CursesInterface(object):
         self.following_str = "Total Followers: %s" % self.userdata.followers_count
 
     def clear_screen(self, window):
-        for i in range(self.term_y_max):
-            whitespace = ' ' * self.term_x_max
-            window.addstr(i, 0, whitespace)
+        window.clear()
 
     def determine_center_pos(self, length):
         return self.center - (length / 2)
@@ -190,7 +189,7 @@ class CursesInterface(object):
         return self.ltab_value
 
     def determine_rtab_pos(self, length):
-        return self.center + (self.term_y_max - (self.center / 2))
+        return (self.center + (self.term_y_max - (self.center / 2)) - self.rpad_value)
 
     def reset_index(self):
         self.index = 0
