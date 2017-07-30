@@ -39,7 +39,7 @@ class CursesInterface(object):
                 break
             except curses.error:
                 self.reset_index()
-                print("[*] If you can't see anything your screen is too short")
+                print("[*] Window too short for entire display")
                 sleep(1)
             except Exception as e:
                 self.reset_index()
