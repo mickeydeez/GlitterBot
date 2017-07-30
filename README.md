@@ -6,6 +6,8 @@
 
 Glitterbot will read in it's configuration and begin to interact with twitter based off criteria therein.
 
+I'm not even trying to support Windows so don't ask
+
 
 **Usage**
 
