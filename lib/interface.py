@@ -116,7 +116,7 @@ class CursesInterface(object):
             while True:
                 string = ''
                 for item in words[index:]:
-                    if len(string) < lim:
+                    if (len(string) + len(item)) < lim:
                         string = "%s%s " % (string, item)
                         index += 1
                     else:
