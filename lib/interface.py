@@ -72,6 +72,8 @@ class CursesInterface(object):
                 window.refresh()
                 self.reset_index()
                 sleep(1)
+            else:
+                break
     
     def dump_header(self, window):
         self.dump_line(window, '')
